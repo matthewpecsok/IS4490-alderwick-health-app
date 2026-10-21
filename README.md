@@ -44,6 +44,24 @@ python manage.py runserver
 
 Then open http://127.0.0.1:8000/.
 
+## Connecting to Gemini
+
+All calls to Google's Gemini models go through [clinic/gemini.py](clinic/gemini.py). Its docstring has a usage example, so build new AI features on `gemini.generate_text()` instead of creating a separate client.
+
+1. Get an API key from [Google AI Studio](https://aistudio.google.com/apikey) or your GCP project.
+2. Add it as a Codespaces secret named `GEMINI_API_KEY`: on GitHub, **Settings → Codespaces → Secrets → New secret**, and give it access to this repository. (If you create the Codespace afterwards, GitHub will also prompt you for it.)
+3. Rebuild or restart the Codespace so it picks up the secret. A Codespace that is already running does not see new secrets.
+4. Start the server and open `/dev/gemini/` on the forwarded port. Send the default prompt. A green "It works" box means the key, project, and model are all set up correctly.
+
+Optional environment variables:
+
+| Variable | Purpose |
+|---|---|
+| `GEMINI_MODEL` | Model ID to use (default `gemini-3.5-flash-lite`) |
+| `GOOGLE_GENAI_USE_VERTEXAI` | Set to `true` to send requests through Vertex AI on GCP. The key must then be a Vertex AI API key. |
+
+On your own computer, run `export GEMINI_API_KEY=...` before `runserver`. The `/dev/gemini/` page is not linked from the application and returns 404 when `DJANGO_DEBUG=0`. Send synthetic text only, never real patient information.
+
 ## Demo data
 
 `seed_demo_data` loads the whole practice:

@@ -4,6 +4,12 @@
   "containerEnv": {
     "PYTHONUNBUFFERED": "1"
   },
+  "secrets": {
+    "GEMINI_API_KEY": {
+      "description": "API key for Gemini (Google AI Studio or a GCP project). Used by clinic/gemini.py; test it at /dev/gemini/.",
+      "documentationUrl": "https://ai.google.dev/gemini-api/docs/api-key"
+    }
+  },
   "updateContentCommand": "pip install --user -r requirements.txt",
   "postCreateCommand": "bash .devcontainer/setup.sh",
   "waitFor": "postCreateCommand",

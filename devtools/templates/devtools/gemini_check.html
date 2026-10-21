@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Gemini connection check{% endblock %}
+{% block body %}
+<main class="container" style="max-width: 760px; padding: 2rem 1rem;">
+  <h1>Gemini connection check</h1>
+  <p class="muted">Developer tool. Not linked from the application, and only available while <code>DEBUG</code> is on. Use synthetic text only.</p>
+
+  <div class="card"><div class="card-body">
+    <p><strong>Backend:</strong> {{ backend }}<br>
+       <strong>Model:</strong> <code>{{ model }}</code><br>
+       <strong>API key:</strong>
+       {% if key_hint %}<span class="badge badge-success">{{ key_hint }}</span>
+       {% else %}<span class="badge badge-danger">not set</span> Add <code>GEMINI_API_KEY</code> as a GitHub Codespaces secret, then rebuild the Codespace.{% endif %}
+    </p>
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="field">
+        <label for="prompt">Prompt</label>
+        <textarea class="input" id="prompt" name="prompt" rows="4">{{ prompt }}</textarea>
+      </div>
+      <div class="form-actions"><button class="btn" type="submit">Send to Gemini</button></div>
+    </form>
+  </div></div>
+
+  {% if reply is not None %}
+  <div class="alert alert-success" style="margin-top: 1rem;">
+    <strong>It works.</strong> Reply in {{ duration_ms }} ms:
+    <p style="white-space: pre-wrap; margin: .5rem 0 0;">{{ reply }}</p>
+  </div>
+  {% elif error %}
+  <div class="alert alert-error" style="margin-top: 1rem;">
+    <strong>Request failed</strong> after {{ duration_ms }} ms:
+    <p style="white-space: pre-wrap; margin: .5rem 0 0;">{{ error }}</p>
+  </div>
+  {% endif %}
+</main>
+{% endblock %}
