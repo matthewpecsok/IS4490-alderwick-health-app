@@ -1,7 +1,12 @@
 {
   "name": "Alderwick Family Health",
   "image": "mcr.microsoft.com/devcontainers/python:3.12",
-  "postCreateCommand": "pip install --user -r requirements.txt && python manage.py migrate --noinput && python manage.py seed_demo_data",
+  "containerEnv": {
+    "PYTHONUNBUFFERED": "1"
+  },
+  "updateContentCommand": "pip install --user -r requirements.txt",
+  "postCreateCommand": "bash .devcontainer/setup.sh",
+  "waitFor": "postCreateCommand",
   "forwardPorts": [8000],
   "portsAttributes": {
     "8000": {
@@ -10,6 +15,9 @@
     }
   },
   "customizations": {
+    "codespaces": {
+      "openFiles": ["README.md"]
+    },
     "vscode": {
       "extensions": ["ms-python.python", "batisteo.vscode-django"]
     }
