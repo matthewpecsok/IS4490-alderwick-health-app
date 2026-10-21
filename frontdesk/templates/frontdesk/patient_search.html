@@ -1,0 +1,17 @@
+{% extends "frontdesk/base.html" %}
+{% block title %}Patient Lookup | Alderwick{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>Patient lookup</h1><p>Search by name, MRN, date of birth (YYYY-MM-DD), or phone.</p></div></div>
+<form class="card" method="get" style="margin-bottom:16px"><div class="card-body toolbar">
+  <label class="sr-only" for="ps-q">Search</label><input class="input" id="ps-q" name="q" value="{{ query }}" style="min-width:320px" autofocus><button class="btn" type="submit">Search</button>
+</div></form>
+{% if query %}
+<div class="card"><div class="table-wrap"><table class="table">
+  <thead><tr><th>Patient</th><th>MRN</th><th>DOB</th><th>Phone</th><th>Primary care</th><th>Insurance</th></tr></thead>
+  <tbody>
+    {% for p in patients %}<tr><td><a href="{% url 'frontdesk:patient_detail' p.pk %}"><strong>{{ p.full_name }}</strong></a></td><td>{{ p.mrn }}</td><td>{{ p.date_of_birth|date:"m/d/Y" }}</td><td>{{ p.phone }}</td><td>{{ p.primary_provider.short_name|default:"-" }}</td><td>{{ p.insurance_plan|default:"-" }}</td></tr>
+    {% empty %}<tr><td colspan="6" class="empty">No patients match "{{ query }}".</td></tr>{% endfor %}
+  </tbody>
+</table></div></div>
+{% endif %}
+{% endblock %}

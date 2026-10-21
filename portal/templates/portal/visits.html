@@ -1,0 +1,12 @@
+{% extends "portal/base.html" %}
+{% block title %}Visit Notes | Alderwick Family Health{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>Visit notes</h1><p>Summaries of your visits, available after your provider signs the note.</p></div></div>
+<div class="card"><div class="table-wrap"><table class="table">
+  <thead><tr><th>Date</th><th>Visit</th><th>Provider</th><th>Location</th><th></th></tr></thead>
+  <tbody>
+    {% for v in visits %}<tr><td>{{ v.visit_date|date:"M j, Y" }}</td><td>{{ v.visit_type }}<br><span class="muted">{{ v.chief_complaint }}</span></td><td>{{ v.provider.display_name }}</td><td>{{ v.office.name|default:"-" }}</td><td class="actions"><a class="btn btn-secondary btn-sm" href="{% url 'portal:visit_detail' v.pk %}">View summary</a></td></tr>
+    {% empty %}<tr><td colspan="5" class="empty">No visit notes yet.</td></tr>{% endfor %}
+  </tbody>
+</table></div></div>
+{% endblock %}

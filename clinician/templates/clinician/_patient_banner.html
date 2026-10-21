@@ -1,0 +1,10 @@
+<div class="patient-banner">
+  <span class="avatar {{ patient.pk|avatar_variant }}">{{ patient.first_name|first }}{{ patient.last_name|first }}</span>
+  <div><h1><a href="{% url 'clinician:chart' patient.pk %}" style="color:inherit">{{ patient.display_name }}</a></h1>
+    <div class="facts"><span><strong>{{ patient.age_today }}</strong> y/o {{ patient.get_sex_display|lower }}</span><span>DOB <strong>{{ patient.date_of_birth|date:"m/d/Y" }}</strong></span><span>MRN <strong>{{ patient.mrn }}</strong></span><span>PCP <strong>{{ patient.primary_provider.short_name|default:"-" }}</strong></span><span>Language <strong>{{ patient.preferred_language }}</strong></span></div></div>
+  <div style="margin-left:auto">
+    {% with allergies=patient.allergies.all %}
+    {% if allergies %}<div class="allergy-banner">Allergies: {% for a in allergies %}{{ a.substance }}{% if not forloop.last %}, {% endif %}{% endfor %}</div>{% else %}<span class="tag">No known allergies</span>{% endif %}
+    {% endwith %}
+  </div>
+</div>

@@ -1,0 +1,29 @@
+{% extends "portal/base.html" %}
+{% block title %}Profile | Alderwick Family Health{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>My profile</h1><p>To update your information, send a message to the front office or tell us at check-in.</p></div></div>
+<div class="grid grid-2">
+  <div class="card"><div class="card-body">
+    <h2>Personal information</h2>
+    <dl class="dl">
+      <dt>Name</dt><dd>{{ patient.display_name }}</dd>
+      <dt>Date of birth</dt><dd>{{ patient.date_of_birth|date:"F j, Y" }}</dd>
+      <dt>MRN</dt><dd>{{ patient.mrn }}</dd>
+      <dt>Phone</dt><dd>{{ patient.phone }}</dd>
+      <dt>Email</dt><dd>{{ patient.email }}</dd>
+      <dt>Address</dt><dd>{{ patient.address_line }}<br>{{ patient.city }}, {{ patient.state }} {{ patient.postal_code }}</dd>
+      <dt>Preferred language</dt><dd>{{ patient.preferred_language }}</dd>
+    </dl>
+  </div></div>
+  <div class="card"><div class="card-body">
+    <h2>Care team and coverage</h2>
+    <dl class="dl">
+      <dt>Primary care</dt><dd>{{ patient.primary_provider.display_name|default:"-" }}</dd>
+      <dt>Home clinic</dt><dd>{{ patient.primary_office.name|default:"-" }}</dd>
+      <dt>Insurance</dt><dd>{{ patient.insurance_plan|default:"None on file" }}</dd>
+      <dt>Member ID</dt><dd>{{ patient.insurance_member_id|default:"-" }}</dd>
+      <dt>Emergency contact</dt><dd>{{ patient.emergency_contact_name }} ({{ patient.emergency_contact_relationship }})<br>{{ patient.emergency_contact_phone }}</dd>
+    </dl>
+  </div></div>
+</div>
+{% endblock %}

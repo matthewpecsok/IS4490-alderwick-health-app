@@ -1,0 +1,44 @@
+{% extends "portal/base.html" %}
+{% block title %}Appointments | Alderwick Family Health{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>Appointments</h1><p>Cancel online up to 24 hours before your visit. Within 24 hours, please call your clinic.</p></div>
+  <a class="btn btn-accent" href="{% url 'portal:request_appointment' %}">Request an appointment</a></div>
+<div class="stack">
+  <div class="card">
+    <div class="card-header"><h2>Upcoming</h2></div>
+    <div class="table-wrap"><table class="table">
+      <thead><tr><th>Date and time</th><th>Visit</th><th>Provider</th><th>Location</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+      {% for a in upcoming %}
+      <tr><td><strong>{{ a.start|date:"D, M j, Y" }}</strong><br>{{ a.start|date:"g:i A" }}</td><td>{{ a.appointment_type.name }}<br><span class="muted">{{ a.reason }}</span></td><td>{{ a.provider.display_name }}</td><td>{{ a.office.name }}<br><span class="muted">{{ a.office.phone }}</span></td><td>{% status_badge a.status a.get_status_display %}</td>
+        <td class="actions">{% if a.patient_can_cancel %}
+          <form method="post" action="{% url 'portal:cancel_appointment' a.pk %}" onsubmit="return confirm('Cancel this appointment?');">{% csrf_token %}<input type="hidden" name="reason" value="Cancelled by patient online"><button class="btn btn-danger btn-sm" type="submit">Cancel</button></form>
+          {% else %}<span class="muted" style="font-size:.8rem">Call to change</span>{% endif %}</td></tr>
+      {% empty %}
+      <tr><td colspan="6" class="empty">No upcoming appointments.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table></div>
+  </div>
+  {% if requests %}
+  <div class="card">
+    <div class="card-header"><h2>Appointment requests</h2></div>
+    <div class="table-wrap"><table class="table">
+      <thead><tr><th>Reference</th><th>Submitted</th><th>Reason</th><th>Status</th></tr></thead>
+      <tbody>{% for r in requests %}<tr><td>{{ r.reference }}</td><td>{{ r.created_at|date:"M j, Y" }}</td><td>{{ r.reason|truncatechars:90 }}{% if r.status == 'declined' and r.decline_reason %}<br><span class="muted">{{ r.decline_reason }}</span>{% endif %}</td><td>{% status_badge r.status r.get_status_display %}</td></tr>{% endfor %}</tbody>
+    </table></div>
+  </div>
+  {% endif %}
+  <div class="card">
+    <div class="card-header"><h2>Past appointments</h2></div>
+    <div class="table-wrap"><table class="table">
+      <thead><tr><th>Date</th><th>Visit</th><th>Provider</th><th>Location</th><th>Status</th></tr></thead>
+      <tbody>
+      {% for a in past %}
+      <tr><td>{{ a.start|date:"M j, Y g:i A" }}</td><td>{{ a.appointment_type.name }}</td><td>{{ a.provider.display_name }}</td><td>{{ a.office.name }}</td><td>{% status_badge a.status a.get_status_display %}</td></tr>
+      {% empty %}<tr><td colspan="5" class="empty">No past appointments.</td></tr>{% endfor %}
+      </tbody>
+    </table></div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "frontdesk/base.html" %}
+{% block title %}Schedule | Alderwick{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>Schedule</h1><p>{{ day|date:"l, F j, Y" }} &middot; {{ selected_office.name|default:"All locations" }}</p></div>
+  <form class="toolbar" method="get">
+    <a class="btn btn-secondary btn-sm" href="?date={{ prev_day|date:'Y-m-d' }}&office={{ selected_office.slug|default:'' }}">&larr;</a>
+    <input class="input" type="date" name="date" value="{{ day|date:'Y-m-d' }}" aria-label="Date">
+    <a class="btn btn-secondary btn-sm" href="?date={{ next_day|date:'Y-m-d' }}&office={{ selected_office.slug|default:'' }}">&rarr;</a>
+    <select class="input" name="office" aria-label="Location"><option value="">All locations</option>{% for o in offices %}<option value="{{ o.slug }}" {% if selected_office and o.pk == selected_office.pk %}selected{% endif %}>{{ o.name }}</option>{% endfor %}</select>
+    <button class="btn btn-secondary" type="submit">Go</button>
+  </form></div>
+<div class="card"><div class="table-wrap"><table class="table">
+  <thead><tr><th>Time</th><th>Patient</th><th>Provider</th><th>Visit</th>{% if not selected_office %}<th>Location</th>{% endif %}<th>Status</th><th class="actions">Actions</th></tr></thead>
+  <tbody>
+  {% for a in appointments %}
+  <tr {% if a.status == 'cancelled' or a.status == 'no_show' %}class="row-muted"{% elif a.status == 'checked_in' %}class="row-highlight"{% endif %}>
+    <td><strong>{{ a.start|time:"g:i A" }}</strong><div class="muted" style="font-size:.8rem">{{ a.duration_minutes }} min</div></td>
+    <td><a href="{% url 'frontdesk:patient_detail' a.patient.pk %}">{{ a.patient.full_name }}</a><div class="muted" style="font-size:.8rem">DOB {{ a.patient.date_of_birth|date:"m/d/Y" }}</div></td>
+    <td>{{ a.provider.short_name }}</td><td>{{ a.appointment_type.name }}<div class="muted" style="font-size:.8rem">{{ a.reason }}</div></td>
+    {% if not selected_office %}<td>{{ a.office.name|cut:"Alderwick " }}</td>{% endif %}
+    <td>{% status_badge a.status a.get_status_display %}</td>
+    <td class="actions">
+      {% if a.status == 'scheduled' %}
+      <form class="inline-form" method="post" action="{% url 'frontdesk:appointment_action' a.pk %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><input type="hidden" name="action" value="check_in"><button class="btn btn-sm" type="submit">Check in</button></form>
+      {% if a.start < now %}<form class="inline-form" method="post" action="{% url 'frontdesk:appointment_action' a.pk %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><input type="hidden" name="action" value="no_show"><button class="btn btn-sm btn-danger" type="submit">No-show</button></form>{% endif %}
+      {% endif %}
+      {% if a.status == 'scheduled' or a.status == 'checked_in' %}
+      <form class="inline-form" method="post" action="{% url 'frontdesk:appointment_action' a.pk %}" onsubmit="var r=prompt('Cancellation reason'); if(!r) return false; this.reason.value=r;">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><input type="hidden" name="action" value="cancel"><input type="hidden" name="reason" value=""><button class="btn btn-sm btn-secondary" type="submit">Cancel</button></form>
+      {% endif %}
+    </td>
+  </tr>
+  {% empty %}<tr><td colspan="7" class="empty">No appointments on this day.</td></tr>{% endfor %}
+  </tbody>
+</table></div></div>
+{% endblock %}

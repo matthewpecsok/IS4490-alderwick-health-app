@@ -1,0 +1,10 @@
+{% extends "layouts/public.html" %}
+{% block title %}Request Received | Alderwick Family Health{% endblock %}
+{% block content %}
+<div class="card" style="max-width:640px;margin:0 auto"><div class="card-body empty-lg empty">
+  <h1>Thank you. We received your request.</h1>
+  <p>Your reference number is <strong style="font-size:1.2rem;color:#13324a">{{ reference }}</strong>.</p>
+  <p>Our patient services team will contact you within one business day. If your symptoms get worse, call {{ practice.nurse_line }}, or 911 in an emergency.</p>
+  <a class="btn btn-secondary" href="{% url 'public:home' %}">Back to home</a>
+</div></div>
+{% endblock %}

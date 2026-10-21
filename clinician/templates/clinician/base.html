@@ -1,0 +1,13 @@
+{% extends "layouts/staff.html" %}
+{% block workspace_name %}Clinician{% endblock %}
+{% block sidebar %}
+{% with name=request.resolver_match.url_name %}
+<div class="nav-label">My work</div>
+<a class="nav-item {% if name == 'dashboard' %}active{% endif %}" href="{% url 'clinician:dashboard' %}">Today</a>
+<a class="nav-item {% if name == 'schedule' %}active{% endif %}" href="{% url 'clinician:schedule' %}">Schedule</a>
+<a class="nav-item {% if name == 'patients' or name == 'chart' %}active{% endif %}" href="{% url 'clinician:patients' %}">My patients</a>
+<a class="nav-item {% if name == 'inbox' or name == 'thread' %}active{% endif %}" href="{% url 'clinician:inbox' %}">Patient messages</a>
+<div class="nav-label">Reference</div>
+<a class="nav-item" href="{% url 'public:resource_list' %}" target="_blank" rel="noopener">Practice policies</a>
+{% endwith %}
+{% endblock %}

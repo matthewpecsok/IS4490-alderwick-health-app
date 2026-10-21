@@ -1,0 +1,53 @@
+{% extends "layouts/public.html" %}
+{% block title %}Request an Appointment | Alderwick Family Health{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>Request an appointment</h1><p>Tell us what you need and our patient services team will contact you within one business day.</p></div></div>
+<div class="layout-main-aside">
+  <form class="card" method="post" novalidate>
+    {% csrf_token %}
+    <div class="card-body">
+      <div class="emergency-note" style="margin-bottom:18px"><strong>Is this an emergency?</strong> Call 911 or go to the nearest emergency department. Do not use this form for urgent medical needs.</div>
+      {% include "includes/form_errors.html" %}
+      <h3>About you</h3>
+      <div class="form-grid">
+        {% include "includes/field.html" with field=form.first_name %}
+        {% include "includes/field.html" with field=form.last_name %}
+        {% include "includes/field.html" with field=form.date_of_birth %}
+        {% include "includes/field.html" with field=form.phone %}
+        {% include "includes/field.html" with field=form.email full=1 %}
+        {% include "includes/field.html" with field=form.is_new_patient full=1 %}
+      </div>
+      <h3 style="margin-top:22px">Insurance</h3>
+      <div class="form-grid">
+        {% include "includes/field.html" with field=form.insurance_plan %}
+        {% include "includes/field.html" with field=form.insurance_other %}
+      </div>
+      <h3 style="margin-top:22px">Your visit</h3>
+      <div class="form-grid">
+        {% include "includes/field.html" with field=form.preferred_specialty %}
+        {% include "includes/field.html" with field=form.preferred_provider %}
+        {% include "includes/field.html" with field=form.preferred_office %}
+        {% include "includes/field.html" with field=form.preferred_times %}
+        {% include "includes/field.html" with field=form.reason full=1 %}
+        {% include "includes/field.html" with field=form.acknowledge full=1 %}
+      </div>
+      <div class="form-actions"><button class="btn btn-accent" type="submit">Submit request</button></div>
+    </div>
+  </form>
+  <aside class="stack">
+    <div class="card"><div class="card-body">
+      <h3>Already a patient?</h3>
+      <p>Sign in to the patient portal to request an appointment with your care team.</p>
+      <a class="btn btn-secondary" href="{% url 'accounts:login' %}?next={% url 'portal:request_appointment' %}">Sign in</a>
+    </div></div>
+    <div class="card"><div class="card-body">
+      <h3>What happens next</h3>
+      <ol style="padding-left:18px;margin:0">
+        <li>We review your request and check your insurance.</li>
+        <li>We call or email you to confirm a time.</li>
+        <li>New patients get portal activation instructions.</li>
+      </ol>
+    </div></div>
+  </aside>
+</div>
+{% endblock %}

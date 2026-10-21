@@ -1,0 +1,80 @@
+{% extends "layouts/public.html" %}
+{% block title %}Alderwick Family Health | Primary and specialty care in the Salt Lake valley{% endblock %}
+{% block main %}
+<section class="hero">
+  <div class="container">
+    <h1>Care that knows you, close to home.</h1>
+    <p>{{ provider_count }} doctors, physician assistants, and nurse practitioners across four Salt Lake valley clinics and secure video visits. {{ accepting_count }} providers are welcoming new patients today.</p>
+    <form class="hero-search" action="{% url 'public:provider_list' %}" method="get">
+      <label class="sr-only" for="hero-q">Name or specialty</label>
+      <input class="input" id="hero-q" name="q" placeholder="Search by name or specialty">
+      <label class="sr-only" for="hero-specialty">Specialty</label>
+      <select class="input" id="hero-specialty" name="specialty">
+        <option value="">Any specialty</option>
+        {% for s in specialties %}<option value="{{ s.slug }}">{{ s.name }}</option>{% endfor %}
+      </select>
+      <label class="sr-only" for="hero-office">Location</label>
+      <select class="input" id="hero-office" name="office">
+        <option value="">Any location</option>
+        {% for o in offices %}<option value="{{ o.slug }}">{{ o.name }}</option>{% endfor %}
+      </select>
+      <button class="btn" type="submit">Find a provider</button>
+    </form>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="page-header"><div><h2>Our services</h2><p>From well-child visits to managing diabetes, we bring care together under one roof.</p></div></div>
+    <div class="grid grid-3">
+      {% for s in specialties %}
+      <a class="card card-link" href="{% url 'public:provider_list' %}?specialty={{ s.slug }}">
+        <div class="card-body">
+          <h3>{{ s.name }}</h3>
+          <p class="muted">{{ s.description }}</p>
+          <span class="tag tag-brand">{{ s.provider_count }} provider{{ s.provider_count|pluralize }}</span>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="container">
+    <div class="page-header"><div><h2>Locations</h2><p>Free parking at every clinic, and video visits from anywhere in Utah.</p></div><a class="btn btn-secondary" href="{% url 'public:location_list' %}">All locations</a></div>
+    <div class="grid grid-3">
+      {% for o in offices %}
+      <a class="card card-link" href="{{ o.get_absolute_url }}">
+        <div class="card-body">
+          <h3>{{ o.name }}</h3>
+          <p class="muted" style="margin-bottom:6px">{{ o.full_address }}</p>
+          <p style="margin:0">{{ o.phone }}</p>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="grid grid-2">
+      <div class="card"><div class="card-body">
+        <h2>New to Alderwick?</h2>
+        <p>Request your first appointment online. Our patient services team will call you within one business day to confirm a time, verify your insurance, and set up your patient portal.</p>
+        <a class="btn" href="{% url 'public:request_appointment' %}">Request an appointment</a>
+        <a class="btn btn-secondary" href="{% url 'public:resource_detail' 'new-patients' %}">What to bring</a>
+      </div></div>
+      <div class="card"><div class="card-body">
+        <h2>Patient resources</h2>
+        <ul class="list" style="margin:0 -20px">
+          {% for doc in resources %}
+          <li><div><a class="title" href="{{ doc.get_absolute_url }}">{{ doc.title }}</a><div class="sub">{{ doc.summary }}</div></div></li>
+          {% endfor %}
+        </ul>
+      </div></div>
+    </div>
+  </div>
+</section>
+{% endblock %}

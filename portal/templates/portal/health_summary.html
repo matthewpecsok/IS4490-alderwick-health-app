@@ -1,0 +1,33 @@
+{% extends "portal/base.html" %}
+{% block title %}Health Summary | Alderwick Family Health{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>Health summary</h1><p>Allergies, health conditions, and medications in your Alderwick record.</p></div></div>
+<div class="grid grid-2">
+  <div class="card">
+    <div class="card-header"><h2>Allergies</h2></div>
+    <ul class="list">
+      {% for a in allergies %}<li><div><div class="title">{{ a.substance }}</div><div class="sub">{{ a.reaction }}</div></div>{% status_badge a.severity a.get_severity_display %}</li>
+      {% empty %}<li class="empty">No known allergies.</li>{% endfor %}
+    </ul>
+  </div>
+  <div class="card">
+    <div class="card-header"><h2>Health conditions</h2></div>
+    <ul class="list">
+      {% for p in active_problems %}<li><div><div class="title">{{ p.description }}</div><div class="sub">Since {{ p.onset_date|date:"F Y" }}</div></div>{% status_badge p.status p.get_status_display %}</li>
+      {% empty %}<li class="empty">No active conditions.</li>{% endfor %}
+      {% for p in resolved_problems %}<li><div><div class="title">{{ p.description }}</div><div class="sub">Resolved {{ p.resolved_date|date:"F Y" }}</div></div>{% status_badge p.status p.get_status_display %}</li>{% endfor %}
+    </ul>
+  </div>
+  <div class="card" style="grid-column:1/-1">
+    <div class="card-header"><h2>Current medications</h2><a href="{% url 'portal:new_message' %}?category=prescription">Request a refill</a></div>
+    <div class="table-wrap"><table class="table">
+      <thead><tr><th>Medication</th><th>Dose</th><th>How to take</th><th>Prescribed by</th><th>Started</th></tr></thead>
+      <tbody>
+        {% for m in medications %}<tr><td><strong>{{ m.name }}</strong></td><td>{{ m.dose }}</td><td>{{ m.frequency }} ({{ m.route|lower }})</td><td>{{ m.prescriber.display_name|default:"-" }}</td><td>{{ m.start_date|date:"M Y" }}</td></tr>
+        {% empty %}<tr><td colspan="5" class="empty">No current medications.</td></tr>{% endfor %}
+      </tbody>
+    </table></div>
+  </div>
+</div>
+<p class="muted" style="margin-top:16px">Is something missing or incorrect? Let your care team know at your next visit or send a message.</p>
+{% endblock %}

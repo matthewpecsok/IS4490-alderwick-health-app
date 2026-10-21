@@ -1,0 +1,21 @@
+# Local database and generated data
+db.sqlite3
+db.sqlite3-journal
+
+# Logs
+logs/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.coverage
+htmlcov/
+
+# Django
+staticfiles/
+
+# Secrets - never commit API keys
+.env
+*.env

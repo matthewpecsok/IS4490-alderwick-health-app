@@ -1,0 +1,11 @@
+{% extends "clinician/base.html" %}
+{% block title %}My Patients | Alderwick{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>My patients</h1><p>Patients you are the primary provider for or have seen or scheduled.</p></div>
+  <form class="toolbar" method="get"><label class="sr-only" for="pl-q">Search</label><input class="input" id="pl-q" name="q" value="{{ query }}" placeholder="Name or MRN"><button class="btn btn-secondary" type="submit">Search</button></form></div>
+<div class="card"><div class="table-wrap"><table class="table">
+  <thead><tr><th>Patient</th><th>MRN</th><th>Age</th><th>Primary care</th><th>Insurance</th></tr></thead>
+  <tbody>{% for p in patients %}<tr><td><a href="{% url 'clinician:chart' p.pk %}"><strong>{{ p.last_name }}, {{ p.first_name }}</strong></a></td><td>{{ p.mrn }}</td><td>{{ p.age_today }}</td><td>{{ p.primary_provider.short_name|default:"-" }}</td><td>{{ p.insurance_plan|default:"-" }}</td></tr>
+  {% empty %}<tr><td colspan="5" class="empty">No patients found.</td></tr>{% endfor %}</tbody>
+</table></div></div>
+{% endblock %}

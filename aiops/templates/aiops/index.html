@@ -1,0 +1,15 @@
+{% extends "layouts/staff.html" %}
+{% block title %}AI Operations | Alderwick{% endblock %}
+{% block workspace_name %}AI Operations{% endblock %}
+{% block sidebar %}
+<div class="nav-label">AI operations</div>
+<a class="nav-item active" href="{% url 'aiops:index' %}">Dashboard</a>
+{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>AI operations dashboard</h1><p>Monitoring for Alderwick's AI assistants.</p></div></div>
+<div class="card"><div class="empty empty-lg">
+  <h2>No AI services are connected yet</h2>
+  <p>Alderwick has not deployed any AI assistants. Once assistants are integrated into the patient site, front-office workspace, or clinician workspace, their usage and performance will be reported here.</p>
+  <p class="muted">Access to this workspace is limited to the AI engineering team.</p>
+</div></div>
+{% endblock %}

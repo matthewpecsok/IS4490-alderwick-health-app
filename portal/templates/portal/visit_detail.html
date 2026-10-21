@@ -1,0 +1,24 @@
+{% extends "portal/base.html" %}
+{% block title %}Visit Summary | Alderwick Family Health{% endblock %}
+{% block content %}
+<div class="breadcrumbs"><a href="{% url 'portal:visits' %}">Visit notes</a> / {{ visit.visit_date|date:"M j, Y" }}</div>
+<div class="card"><div class="card-body note-section">
+  <h1 style="font-size:1.4rem">{{ visit.visit_type }}</h1>
+  <p class="muted">{{ visit.visit_date|date:"l, F j, Y g:i A" }} &middot; {{ visit.provider.display_name }} &middot; {{ visit.office.name|default:"" }}</p>
+  {% if visit.patient_instructions %}<div class="alert alert-info"><strong>Your after-visit summary</strong><br>{{ visit.patient_instructions }}</div>{% endif %}
+  {% if visit.blood_pressure %}
+  <h4>Vitals</h4>
+  <div class="vitals">
+    <div><span>Blood pressure</span><strong>{{ visit.blood_pressure }}</strong></div>
+    <div><span>Heart rate</span><strong>{{ visit.heart_rate }}</strong></div>
+    <div><span>Temp</span><strong>{{ visit.temperature_f }}&deg;F</strong></div>
+    <div><span>Weight</span><strong>{{ visit.weight_lb }} lb</strong></div>
+    {% if visit.bmi %}<div><span>BMI</span><strong>{{ visit.bmi }}</strong></div>{% endif %}
+  </div>
+  {% endif %}
+  <h4>Reason for visit</h4><div class="note-text">{{ visit.chief_complaint }}</div>
+  <h4>Assessment</h4><div class="note-text">{{ visit.assessment }}</div>
+  <h4>Plan</h4><div class="note-text">{{ visit.plan }}</div>
+  <p class="muted" style="margin-top:18px">Signed by {{ visit.provider.display_name }} on {{ visit.signed_at|date:"M j, Y" }}</p>
+</div></div>
+{% endblock %}

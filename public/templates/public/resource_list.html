@@ -1,0 +1,17 @@
+{% extends "layouts/public.html" %}
+{% block title %}Patient Resources | Alderwick Family Health{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>Patient resources</h1><p>Policies, visit preparation, and answers to common questions.</p></div></div>
+<div class="stack">
+  {% for category, docs in groups %}
+  <section>
+    <h2>{{ category }}</h2>
+    <div class="grid grid-2">
+      {% for doc in docs %}
+      <a class="card card-link" href="{{ doc.get_absolute_url }}"><div class="card-body"><h3>{{ doc.title }}</h3><p class="muted" style="margin:0">{{ doc.summary }}</p></div></a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endfor %}
+</div>
+{% endblock %}

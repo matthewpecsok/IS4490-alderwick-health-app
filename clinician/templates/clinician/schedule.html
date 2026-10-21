@@ -1,0 +1,15 @@
+{% extends "clinician/base.html" %}
+{% block title %}Schedule | Alderwick{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>Schedule</h1><p>{{ day|date:"l, F j, Y" }}{% for b in blocks %}{% if forloop.first %} &middot; {% endif %}{{ b.office.name|cut:"Alderwick " }} {{ b.start_time|time:"g:i" }}&ndash;{{ b.end_time|time:"g:i A" }}{% if not forloop.last %}, {% endif %}{% empty %} &middot; Not scheduled to work{% endfor %}</p></div>
+  <form class="toolbar" method="get"><a class="btn btn-secondary btn-sm" href="?date={{ prev_day|date:'Y-m-d' }}">&larr;</a><input class="input" type="date" name="date" value="{{ day|date:'Y-m-d' }}" aria-label="Date"><a class="btn btn-secondary btn-sm" href="?date={{ next_day|date:'Y-m-d' }}">&rarr;</a><button class="btn btn-secondary" type="submit">Go</button></form></div>
+<div class="card"><div class="table-wrap"><table class="table">
+  <thead><tr><th>Time</th><th>Patient</th><th>Visit</th><th>Reason</th><th>Location</th><th>Status</th><th></th></tr></thead>
+  <tbody>
+  {% for a in appointments %}
+  <tr {% if a.status == 'cancelled' or a.status == 'no_show' %}class="row-muted"{% endif %}><td><strong>{{ a.start|time:"g:i A" }}</strong><div class="muted" style="font-size:.8rem">{{ a.duration_minutes }} min</div></td><td><a href="{% url 'clinician:chart' a.patient.pk %}">{{ a.patient.full_name }}</a><div class="muted" style="font-size:.8rem">{{ a.patient.age_today }} y/o</div></td><td>{{ a.appointment_type.name }}</td><td>{{ a.reason }}</td><td>{{ a.office.name|cut:"Alderwick " }}</td><td>{% status_badge a.status a.get_status_display %}</td>
+    <td class="actions">{% if a.status == 'scheduled' or a.status == 'checked_in' or a.status == 'completed' %}<a class="btn btn-sm btn-secondary" href="{% url 'clinician:start_note' a.pk %}">Note</a>{% endif %}</td></tr>
+  {% empty %}<tr><td colspan="7" class="empty">No appointments.</td></tr>{% endfor %}
+  </tbody>
+</table></div></div>
+{% endblock %}

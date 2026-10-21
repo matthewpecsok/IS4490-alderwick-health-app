@@ -1,0 +1,51 @@
+{% extends "clinician/base.html" %}
+{% block title %}{{ patient.full_name }} | Chart{% endblock %}
+{% block content %}
+{% include "clinician/_patient_banner.html" %}
+<div class="layout-main-aside">
+  <div class="stack">
+    {% if latest_vitals %}
+    <div class="card"><div class="card-header"><h2>Latest vitals</h2><span class="muted">{{ latest_vitals.visit_date|date:"M j, Y" }}</span></div><div class="card-body">
+      <div class="vitals">
+        <div><span>BP</span><strong>{{ latest_vitals.blood_pressure }}</strong></div>
+        <div><span>HR</span><strong>{{ latest_vitals.heart_rate }}</strong></div>
+        <div><span>Temp</span><strong>{{ latest_vitals.temperature_f }}&deg;F</strong></div>
+        <div><span>Weight</span><strong>{{ latest_vitals.weight_lb }} lb</strong></div>
+        {% if latest_vitals.bmi %}<div><span>BMI</span><strong>{{ latest_vitals.bmi }}</strong></div>{% endif %}
+        <div><span>SpO2</span><strong>{{ latest_vitals.oxygen_saturation }}%</strong></div>
+      </div>
+    </div></div>
+    {% endif %}
+    <div class="card">
+      <div class="card-header"><h2>Visits</h2></div>
+      <div class="table-wrap"><table class="table">
+        <thead><tr><th>Date</th><th>Visit</th><th>Provider</th><th>Assessment</th><th>Status</th></tr></thead>
+        <tbody>{% for v in visits %}<tr><td><a href="{% url 'clinician:visit_detail' v.pk %}">{{ v.visit_date|date:"M j, Y" }}</a></td><td>{{ v.visit_type }}</td><td>{{ v.provider.short_name }}</td><td style="font-size:.85rem">{{ v.assessment|truncatechars:110|default:"-" }}</td><td>{% status_badge v.status v.get_status_display %}</td></tr>
+        {% empty %}<tr><td colspan="5" class="empty">No visits.</td></tr>{% endfor %}</tbody>
+      </table></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h2>Results</h2></div>
+      <div class="table-wrap"><table class="table">
+        <thead><tr><th>Collected</th><th>Test</th><th>Result</th><th>Range</th><th>Flag</th></tr></thead>
+        <tbody>{% for r in labs %}<tr {% if r.is_abnormal %}class="row-highlight"{% endif %}><td>{{ r.collected_on|date:"M j, Y" }}</td><td>{{ r.test_name }}<div class="muted" style="font-size:.8rem">{{ r.panel }}</div></td><td><strong>{{ r.value }}</strong> {{ r.unit }}</td><td>{{ r.reference_range }}</td><td>{% status_badge r.flag r.get_flag_display %}</td></tr>
+        {% empty %}<tr><td colspan="5" class="empty">No results.</td></tr>{% endfor %}</tbody>
+      </table></div>
+    </div>
+  </div>
+  <aside class="stack">
+    <div class="card"><div class="card-header"><h3>Problem list</h3></div>
+      <ul class="list">{% for p in problems %}<li><div><div class="title">{{ p.description }}</div><div class="sub">{{ p.icd10_code }} &middot; since {{ p.onset_date|date:"M Y" }}</div></div>{% status_badge p.status p.get_status_display %}</li>{% empty %}<li class="empty">No problems recorded.</li>{% endfor %}</ul></div>
+    <div class="card"><div class="card-header"><h3>Medications</h3></div>
+      <ul class="list">{% for m in medications %}<li {% if not m.is_active %}style="opacity:.6"{% endif %}><div><div class="title">{{ m.name }} {{ m.dose }}</div><div class="sub">{{ m.frequency }}{% if m.prescriber %} &middot; {{ m.prescriber.short_name }}{% endif %}</div></div>{% if not m.is_active %}<span class="badge badge-muted">Stopped</span>{% endif %}</li>{% empty %}<li class="empty">No medications.</li>{% endfor %}</ul></div>
+    <div class="card"><div class="card-header"><h3>Allergies</h3></div>
+      <ul class="list">{% for a in allergies %}<li><div><div class="title">{{ a.substance }}</div><div class="sub">{{ a.reaction }}</div></div>{% status_badge a.severity a.get_severity_display %}</li>{% empty %}<li class="empty">NKDA</li>{% endfor %}</ul></div>
+    <div class="card"><div class="card-header"><h3>Upcoming</h3></div>
+      <ul class="list">{% for a in upcoming %}<li><div><div class="title">{{ a.start|date:"M j, g:i A" }}</div><div class="sub">{{ a.provider.short_name }} &middot; {{ a.office.name|cut:"Alderwick " }}</div></div></li>{% empty %}<li class="empty">Nothing scheduled.</li>{% endfor %}</ul></div>
+    <div class="card"><div class="card-body">
+      <h3>Coverage and contact</h3>
+      <dl class="dl" style="grid-template-columns:90px 1fr;font-size:.85rem"><dt>Insurance</dt><dd>{{ patient.insurance_plan|default:"-" }}</dd><dt>Phone</dt><dd>{{ patient.phone }}</dd>{% if patient.guardian_name %}<dt>Guardian</dt><dd>{{ patient.guardian_name }}</dd>{% endif %}<dt>Emergency</dt><dd>{{ patient.emergency_contact_name }} ({{ patient.emergency_contact_relationship }})</dd></dl>
+    </div></div>
+  </aside>
+</div>
+{% endblock %}

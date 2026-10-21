@@ -1,0 +1,16 @@
+{% extends "portal/base.html" %}
+{% block title %}{{ thread.subject }} | Alderwick Family Health{% endblock %}
+{% block content %}
+<div class="breadcrumbs"><a href="{% url 'portal:messages' %}">Messages</a> / {{ thread.subject }}</div>
+<div class="card" style="max-width:860px">
+  <div class="card-header"><div><h2>{{ thread.subject }}</h2><span class="muted">{{ thread.get_category_display }} &middot; {{ thread.get_queue_display }}{% if thread.assigned_provider %} for {{ thread.assigned_provider.display_name }}{% endif %}</span></div>{% status_badge thread.status thread.get_status_display %}</div>
+  {% include "includes/conversation.html" %}
+  <div class="card-footer">
+    <form method="post">
+      {% csrf_token %}
+      {% include "includes/field.html" with field=form.body %}
+      <div class="form-actions"><button class="btn" type="submit">Send reply</button></div>
+    </form>
+  </div>
+</div>
+{% endblock %}

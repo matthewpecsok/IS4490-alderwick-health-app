@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block body_class %}staff{% endblock %}
+{% block body %}
+<div class="staff-shell">
+  <aside class="staff-sidebar" aria-label="Workspace navigation">
+    <a class="brand" href="{% url 'accounts:home' %}">{% include "includes/logo.html" with fill="#1b7a80" %}<span>Alderwick<small>{% block workspace_name %}Workspace{% endblock %}</small></span></a>
+    {% block sidebar %}{% endblock %}
+    <div class="sidebar-footer">Synthetic data only.<br>Every chart access is logged.</div>
+  </aside>
+  <div class="staff-main">
+    <div class="staff-topbar">
+      <div class="muted">{% now "l, F j, Y" %}</div>
+      <div class="who">
+        <span class="avatar avatar-sm {{ user.pk|avatar_variant }}">{{ user.first_name|first }}{{ user.last_name|first }}</span>
+        <span><strong>{{ user.display_name }}</strong><small>{{ user.job_title|default:user.get_role_display }}{% if user.office %} &middot; {{ user.office.name }}{% endif %}</small></span>
+        <form class="inline-form" method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}<button class="btn btn-secondary btn-sm" type="submit">Sign out</button></form>
+      </div>
+    </div>
+    <div class="staff-content">
+      {% include "includes/messages.html" %}
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+</div>
+{% endblock %}

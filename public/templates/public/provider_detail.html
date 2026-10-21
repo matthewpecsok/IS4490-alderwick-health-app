@@ -1,0 +1,53 @@
+{% extends "layouts/public.html" %}
+{% block title %}{{ provider.display_name }} | Alderwick Family Health{% endblock %}
+{% block content %}
+<div class="breadcrumbs"><a href="{% url 'public:provider_list' %}">Find a provider</a> / {{ provider.display_name }}</div>
+<div class="layout-main-aside">
+  <div class="stack">
+    <div class="card"><div class="card-body" style="display:flex;gap:24px;align-items:center;flex-wrap:wrap">
+      <div class="avatar avatar-lg {{ provider.pk|avatar_variant }}">{{ provider.initials }}</div>
+      <div>
+        <h1 style="margin-bottom:4px">{{ provider.display_name }}</h1>
+        <div class="muted" style="font-size:1.05rem">{{ provider.title }} &middot; {{ provider.specialty.name }}</div>
+        <div class="toolbar" style="margin-top:10px">
+          {% if provider.accepting_new_patients %}<span class="tag tag-brand">Accepting new patients</span>{% else %}<span class="tag">Established patients only</span>{% endif %}
+          {% if provider.offers_telehealth %}<span class="tag tag-accent">Video visits</span>{% endif %}
+          {% for lang in provider.language_list %}<span class="tag">{{ lang }}</span>{% endfor %}
+        </div>
+      </div>
+    </div></div>
+    <div class="card"><div class="card-body">
+      <h2>About</h2>
+      <p>{{ provider.bio }}</p>
+      <dl class="dl">
+        <dt>Board certification</dt><dd>{{ provider.board_certification }}</dd>
+        <dt>Education</dt><dd>{% for line in provider.education_list %}{{ line }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</dd>
+        <dt>In practice since</dt><dd>{{ provider.practicing_since }}</dd>
+      </dl>
+    </div></div>
+    <div class="card"><div class="card-body">
+      <h2>Where to find {{ provider.short_name }}</h2>
+      <div class="table-wrap"><table class="table">
+        <thead><tr><th>Day</th><th>Location</th></tr></thead>
+        <tbody>{% for day, offices in schedule_days %}<tr><td>{{ day }}</td><td>{{ offices|join:", " }}</td></tr>{% endfor %}</tbody>
+      </table></div>
+    </div></div>
+    <div class="card"><div class="card-body">
+      <h2>Insurance accepted</h2>
+      <div class="toolbar">{% for plan in provider.insurance_plans.all %}<span class="tag">{{ plan.name }}</span>{% endfor %}</div>
+      <p class="muted" style="margin-top:12px">Always confirm coverage with your insurance company. See our <a href="{% url 'public:resource_detail' 'insurance-billing' %}">billing FAQ</a>.</p>
+    </div></div>
+  </div>
+  <aside class="card">
+    <div class="card-header"><h3>Upcoming availability</h3></div>
+    <ul class="list">
+      {% for slot in slots %}
+      <li><div><div class="title">{{ slot.local_start|date:"D, M j" }}</div><div class="sub">{{ slot.local_start|date:"g:i A" }} &middot; {{ slot.office.name|cut:"Alderwick " }}</div></div></li>
+      {% empty %}
+      <li class="empty">No openings in the next three weeks.</li>
+      {% endfor %}
+    </ul>
+    <div class="card-footer"><a class="btn" style="width:100%" href="{% url 'public:request_appointment' %}?provider={{ provider.slug }}">Request an appointment</a></div>
+  </aside>
+</div>
+{% endblock %}

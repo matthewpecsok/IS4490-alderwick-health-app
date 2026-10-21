@@ -1,0 +1,30 @@
+{% extends "frontdesk/base.html" %}
+{% block title %}{{ thread.subject }} | Alderwick{% endblock %}
+{% block content %}
+<div class="breadcrumbs"><a href="{% url 'frontdesk:messages' %}">Patient messages</a> / {{ thread.subject }}</div>
+<div class="layout-main-aside">
+  <div class="card">
+    <div class="card-header"><div><h2>{{ thread.subject }}</h2><span class="muted">{{ thread.get_category_display }}</span></div>{% status_badge thread.status thread.get_status_display %}</div>
+    {% include "includes/conversation.html" %}
+    <div class="card-footer">
+      <form method="post">{% csrf_token %}
+        {% include "includes/field.html" with field=form.body %}
+        <div class="form-actions"><button class="btn" type="submit">Send reply</button>
+          {% if thread.status == 'open' %}<button class="btn btn-secondary" type="submit" name="action" value="close" formnovalidate>Close conversation</button>{% endif %}</div>
+      </form>
+    </div>
+  </div>
+  <aside class="card"><div class="card-body">
+    <h3>{{ thread.patient.full_name }}</h3>
+    <dl class="dl" style="grid-template-columns:90px 1fr">
+      <dt>MRN</dt><dd>{{ thread.patient.mrn }}</dd>
+      <dt>DOB</dt><dd>{{ thread.patient.date_of_birth|date:"M j, Y" }}</dd>
+      <dt>Phone</dt><dd>{{ thread.patient.phone }}</dd>
+      <dt>Insurance</dt><dd>{{ thread.patient.insurance_plan|default:"-" }}</dd>
+      <dt>PCP</dt><dd>{{ thread.patient.primary_provider.short_name|default:"-" }}</dd>
+      <dt>Language</dt><dd>{{ thread.patient.preferred_language }}</dd>
+    </dl>
+    <div class="form-actions"><a class="btn btn-secondary btn-sm" href="{% url 'frontdesk:patient_detail' thread.patient.pk %}">Patient profile</a><a class="btn btn-secondary btn-sm" href="{% url 'frontdesk:book_for_patient' thread.patient.pk %}">Book appointment</a></div>
+  </div></aside>
+</div>
+{% endblock %}

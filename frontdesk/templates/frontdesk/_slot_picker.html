@@ -1,0 +1,46 @@
+{# Requires slot_picker_context() in the view context. #}
+<form method="get" class="toolbar" style="margin-bottom:14px">
+  <label class="sr-only" for="sp-provider">Provider</label>
+  <select class="input" id="sp-provider" name="provider">
+    <option value="">Choose a provider</option>
+    {% regroup picker_providers by specialty.name as by_specialty %}
+    {% for group in by_specialty %}<optgroup label="{{ group.grouper }}">{% for p in group.list %}<option value="{{ p.pk }}" {% if picker_provider and p.pk == picker_provider.pk %}selected{% endif %}>{{ p.display_name }}{% if not p.accepting_new_patients %} (established only){% endif %}</option>{% endfor %}</optgroup>{% endfor %}
+  </select>
+  <label class="sr-only" for="sp-type">Visit type</label>
+  <select class="input" id="sp-type" name="appointment_type">
+    {% for t in picker_types %}<option value="{{ t.pk }}" {% if picker_type and t.pk == picker_type.pk %}selected{% endif %}>{{ t.name }} ({{ t.duration_minutes }} min)</option>{% endfor %}
+  </select>
+  <label class="sr-only" for="sp-start">Week of</label>
+  <input class="input" type="date" id="sp-start" name="start" value="{{ picker_start|date:'Y-m-d' }}">
+  <button class="btn btn-secondary" type="submit">Find times</button>
+</form>
+{% if insurance_warning %}<div class="alert alert-warning">{{ picker_provider.short_name }} is not contracted with this patient's insurance plan. Confirm coverage or choose another provider.</div>{% endif %}
+{% if picker_provider %}
+  {% if not picker_provider.accepting_new_patients %}<div class="alert alert-info">{{ picker_provider.short_name }} is accepting established patients only.</div>{% endif %}
+  <form method="post" action="{{ book_action }}">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="book">
+    <input type="hidden" name="provider" value="{{ picker_provider.pk }}">
+    <input type="hidden" name="appointment_type" value="{{ picker_type.pk }}">
+    {% for day, slots in slots_by_day %}
+    <div class="slot-day"><h4>{{ day|date:"l, M j" }}</h4>
+      <div class="slots">{% for s in slots %}<label class="slot"><input type="radio" name="slot" value="{{ s.value }}" required><span>{{ s.local_start|date:"g:i A" }} <small>{{ s.office.name|cut:"Alderwick "|cut:" Clinic" }}</small></span></label>{% endfor %}</div>
+    </div>
+    {% empty %}
+    <div class="empty">No openings for {{ picker_type.name|lower }} with {{ picker_provider.short_name }} that week.</div>
+    {% endfor %}
+    <div class="toolbar" style="justify-content:space-between;margin-top:8px">
+      <span class="toolbar">
+        <a href="?provider={{ picker_provider.pk }}&appointment_type={{ picker_type.pk }}&start={{ picker_prev|date:'Y-m-d' }}">&larr; Earlier</a>
+        <a href="?provider={{ picker_provider.pk }}&appointment_type={{ picker_type.pk }}&start={{ picker_next|date:'Y-m-d' }}">Later &rarr;</a>
+      </span>
+    </div>
+    {% if slots_by_day %}
+      {% if show_new_patient_fields %}<div style="max-width:260px;margin-top:12px">{% include "includes/field.html" with field=new_patient_form.sex %}</div>{% endif %}
+      {% if show_reason_field %}<div style="margin-top:12px" class="field"><label for="sp-reason">Reason for visit</label><input class="input" id="sp-reason" name="reason" maxlength="255"></div>{% endif %}
+      <div class="form-actions"><button class="btn" type="submit">Book selected time</button></div>
+    {% endif %}
+  </form>
+{% else %}
+<div class="empty">Choose a provider to see open times.</div>
+{% endif %}

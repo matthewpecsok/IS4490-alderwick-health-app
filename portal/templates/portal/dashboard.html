@@ -1,0 +1,51 @@
+{% extends "portal/base.html" %}
+{% block title %}My Portal | Alderwick Family Health{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1>Welcome back, {{ patient.preferred_name|default:patient.first_name }}</h1><p>MRN {{ patient.mrn }} &middot; Primary care: {{ patient.primary_provider.display_name|default:"Not assigned" }}</p></div>
+  <div class="toolbar"><a class="btn btn-secondary" href="{% url 'portal:new_message' %}">Message my care team</a><a class="btn btn-accent" href="{% url 'portal:request_appointment' %}">Request an appointment</a></div>
+</div>
+<div class="grid grid-4" style="margin-bottom:18px">
+  <div class="card stat stat-accent"><div class="label">Upcoming visits</div><div class="value">{{ upcoming|length }}</div></div>
+  <div class="card stat stat-warn"><div class="label">Unread messages</div><div class="value">{{ unread_threads }}</div></div>
+  <div class="card stat"><div class="label">Active medications</div><div class="value">{{ active_medications }}</div></div>
+  <div class="card stat"><div class="label">Open requests</div><div class="value">{{ open_requests|length }}</div></div>
+</div>
+<div class="grid grid-2">
+  <div class="card">
+    <div class="card-header"><h2>Upcoming appointments</h2><a href="{% url 'portal:appointments' %}">View all</a></div>
+    <ul class="list">
+      {% for a in upcoming %}
+      <li><div><div class="title">{{ a.start|date:"l, F j" }} at {{ a.start|date:"g:i A" }}</div><div class="sub">{{ a.appointment_type.name }} with {{ a.provider.display_name }} &middot; {{ a.office.name }}</div></div></li>
+      {% empty %}
+      <li class="empty">No upcoming appointments. <a href="{% url 'portal:request_appointment' %}">Request one</a>.</li>
+      {% endfor %}
+    </ul>
+  </div>
+  <div class="card">
+    <div class="card-header"><h2>Recent test results</h2><a href="{% url 'portal:lab_results' %}">View all</a></div>
+    <ul class="list">
+      {% for r in recent_labs %}
+      <li><div><div class="title">{{ r.test_name }}</div><div class="sub">{{ r.collected_on|date:"M j, Y" }} &middot; Range {{ r.reference_range }}</div></div><div>{{ r.value }} {{ r.unit }} {% status_badge r.flag r.get_flag_display %}</div></li>
+      {% empty %}
+      <li class="empty">No results yet.</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% if open_requests %}
+  <div class="card">
+    <div class="card-header"><h2>Appointment requests in progress</h2></div>
+    <ul class="list">
+      {% for r in open_requests %}
+      <li><div><div class="title">{{ r.reference }}</div><div class="sub">{{ r.reason|truncatechars:80 }}</div></div>{% status_badge r.status r.get_status_display %}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+  <div class="card"><div class="card-body">
+    <h2>Need care after hours?</h2>
+    <p>Call our 24-hour nurse line at <strong>{{ practice.nurse_line }}</strong>. Portal messages are answered within 2 business days and are not for urgent needs.</p>
+    <div class="emergency-note">If you think you are having a medical emergency, call 911.</div>
+  </div></div>
+</div>
+{% endblock %}

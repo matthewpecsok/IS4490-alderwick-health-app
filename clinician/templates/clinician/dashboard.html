@@ -1,0 +1,50 @@
+{% extends "clinician/base.html" %}
+{% block title %}Today | Alderwick{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>{{ provider.short_name }}'s day</h1><p>{{ today|date:"l, F j" }} &middot; {{ panel_size }} patients in your panel</p></div></div>
+<div class="grid grid-4" style="margin-bottom:18px">
+  <div class="card stat stat-accent"><div class="label">Today's visits</div><div class="value">{{ todays|length }}</div></div>
+  <a class="card card-link stat stat-warn" href="#notes"><div class="label">Notes to sign</div><div class="value">{{ drafts|length }}</div></a>
+  <a class="card card-link stat stat-warn" href="{% url 'clinician:inbox' %}"><div class="label">Messages needing reply</div><div class="value">{{ awaiting_count }}</div><div class="hint">{{ inbox_count }} open</div></a>
+  <div class="card stat"><div class="label">Abnormal results (60 days)</div><div class="value">{{ abnormal_labs|length }}</div></div>
+</div>
+<div class="layout-main-aside">
+  <div class="stack">
+    <div class="card">
+      <div class="card-header"><h2>Today's schedule</h2><a href="{% url 'clinician:schedule' %}">Full schedule</a></div>
+      <div class="table-wrap"><table class="table">
+        <thead><tr><th>Time</th><th>Patient</th><th>Visit</th><th>Location</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+        {% for a in todays %}
+        <tr {% if a.status == 'checked_in' %}class="row-highlight"{% endif %}><td><strong>{{ a.start|time:"g:i A" }}</strong></td><td><a href="{% url 'clinician:chart' a.patient.pk %}">{{ a.patient.full_name }}</a><div class="muted" style="font-size:.8rem">{{ a.patient.age_today }} y/o &middot; {{ a.reason }}</div></td><td>{{ a.appointment_type.name }}</td><td>{{ a.office.name|cut:"Alderwick "|cut:" Clinic" }}</td><td>{% status_badge a.status a.get_status_display %}</td>
+          <td class="actions">{% if a.status != 'no_show' %}<a class="btn btn-sm btn-secondary" href="{% url 'clinician:start_note' a.pk %}">Note</a>{% endif %}</td></tr>
+        {% empty %}<tr><td colspan="6" class="empty">No visits scheduled today.</td></tr>{% endfor %}
+        </tbody>
+      </table></div>
+    </div>
+    <div class="card" id="notes">
+      <div class="card-header"><h2>Unsigned notes</h2></div>
+      <ul class="list">
+        {% for v in drafts %}<li><div><a class="title" href="{% url 'clinician:edit_note' v.pk %}">{{ v.patient.full_name }}</a><div class="sub">{{ v.visit_type }} &middot; {{ v.visit_date|date:"M j, g:i A" }}</div></div><span class="badge badge-warning">Draft</span></li>
+        {% empty %}<li class="empty">All notes are signed.</li>{% endfor %}
+      </ul>
+    </div>
+  </div>
+  <aside class="stack">
+    <div class="card">
+      <div class="card-header"><h3>Patient messages</h3><a href="{% url 'clinician:inbox' %}">Inbox</a></div>
+      <ul class="list">
+        {% for t in inbox %}<li><div><a class="title" href="{% url 'clinician:thread' t.pk %}">{{ t.subject }}</a>{% if t.staff_has_unread %} <span class="count">New</span>{% endif %}<div class="sub">{{ t.patient.full_name }} &middot; {{ t.updated_at|timesince }} ago</div></div></li>
+        {% empty %}<li class="empty">Inbox is clear.</li>{% endfor %}
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-header"><h3>Abnormal results</h3></div>
+      <ul class="list">
+        {% for r in abnormal_labs %}<li><div><a class="title" href="{% url 'clinician:chart' r.patient.pk %}">{{ r.patient.full_name }}</a><div class="sub">{{ r.test_name }} {{ r.value }} {{ r.unit }} &middot; {{ r.collected_on|date:"M j" }}</div></div>{% status_badge r.flag r.get_flag_display %}</li>
+        {% empty %}<li class="empty">None in the last 60 days.</li>{% endfor %}
+      </ul>
+    </div>
+  </aside>
+</div>
+{% endblock %}

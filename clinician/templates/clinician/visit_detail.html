@@ -1,0 +1,17 @@
+{% extends "clinician/base.html" %}
+{% block title %}Visit note | Alderwick{% endblock %}
+{% block content %}
+{% include "clinician/_patient_banner.html" with patient=visit.patient %}
+<div class="card"><div class="card-header"><div><h2>{{ visit.visit_type }}</h2><span class="muted">{{ visit.visit_date|date:"l, F j, Y g:i A" }} &middot; {{ visit.provider.display_name }} &middot; {{ visit.office.name|default:"" }}</span></div>
+  <div class="toolbar">{% status_badge visit.status visit.get_status_display %}{% if can_edit %}<a class="btn btn-sm" href="{% url 'clinician:edit_note' visit.pk %}">Continue note</a>{% endif %}</div></div>
+  <div class="card-body note-section">
+    {% if visit.blood_pressure %}<div class="vitals"><div><span>BP</span><strong>{{ visit.blood_pressure }}</strong></div><div><span>HR</span><strong>{{ visit.heart_rate }}</strong></div><div><span>Temp</span><strong>{{ visit.temperature_f }}&deg;F</strong></div><div><span>Weight</span><strong>{{ visit.weight_lb }} lb</strong></div><div><span>SpO2</span><strong>{{ visit.oxygen_saturation }}%</strong></div></div>{% endif %}
+    <h4>Chief complaint</h4><div class="note-text">{{ visit.chief_complaint|default:"-" }}</div>
+    <h4>Subjective</h4><div class="note-text">{{ visit.subjective|default:"-" }}</div>
+    <h4>Objective</h4><div class="note-text">{{ visit.objective|default:"-" }}</div>
+    <h4>Assessment</h4><div class="note-text">{{ visit.assessment|default:"-" }}</div>
+    <h4>Plan</h4><div class="note-text">{{ visit.plan|default:"-" }}</div>
+    <h4>After-visit summary</h4><div class="note-text">{{ visit.patient_instructions|default:"-" }}</div>
+    {% if visit.is_signed %}<p class="muted" style="margin-top:18px">Electronically signed by {{ visit.signed_by.display_name|default:visit.provider.display_name }} on {{ visit.signed_at|date:"M j, Y g:i A" }}</p>{% endif %}
+  </div></div>
+{% endblock %}

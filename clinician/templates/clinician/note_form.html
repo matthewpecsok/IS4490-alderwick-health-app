@@ -1,0 +1,32 @@
+{% extends "clinician/base.html" %}
+{% block title %}Visit note | Alderwick{% endblock %}
+{% block content %}
+{% include "clinician/_patient_banner.html" %}
+<div class="layout-main-aside">
+  <form class="card" method="post">
+    {% csrf_token %}
+    <div class="card-header"><div><h2>{{ visit.visit_type }} note</h2><span class="muted">{{ visit.visit_date|date:"l, F j, Y g:i A" }}</span></div>{% status_badge visit.status visit.get_status_display %}</div>
+    <div class="card-body">
+      {% include "includes/form_errors.html" %}
+      {% include "includes/field.html" with field=form.chief_complaint %}
+      <h3 style="margin-top:18px">Vitals</h3>
+      <div class="form-grid" style="grid-template-columns:repeat(3,minmax(0,1fr))">
+        {% include "includes/field.html" with field=form.blood_pressure %}{% include "includes/field.html" with field=form.heart_rate %}{% include "includes/field.html" with field=form.temperature_f %}
+        {% include "includes/field.html" with field=form.weight_lb %}{% include "includes/field.html" with field=form.height_in %}{% include "includes/field.html" with field=form.oxygen_saturation %}
+      </div>
+      <div class="stack" style="margin-top:18px">
+        {% include "includes/field.html" with field=form.subjective %}
+        {% include "includes/field.html" with field=form.objective %}
+        {% include "includes/field.html" with field=form.assessment %}
+        {% include "includes/field.html" with field=form.plan %}
+        {% include "includes/field.html" with field=form.patient_instructions %}
+      </div>
+      <div class="form-actions"><button class="btn btn-secondary" type="submit" name="save">Save draft</button><button class="btn" type="submit" name="sign" onclick="return confirm('Sign this note? Signed notes cannot be edited, and the after-visit summary becomes visible to the patient.');">Sign note</button></div>
+    </div>
+  </form>
+  <aside class="stack">
+    <div class="card"><div class="card-header"><h3>Active problems</h3></div><ul class="list">{% for p in problems %}<li><div><div class="title">{{ p.description }}</div><div class="sub">{{ p.icd10_code }}</div></div></li>{% empty %}<li class="empty">None</li>{% endfor %}</ul></div>
+    <div class="card"><div class="card-header"><h3>Active medications</h3></div><ul class="list">{% for m in medications %}<li><div><div class="title">{{ m.name }} {{ m.dose }}</div><div class="sub">{{ m.frequency }}</div></div></li>{% empty %}<li class="empty">None</li>{% endfor %}</ul></div>
+  </aside>
+</div>
+{% endblock %}

@@ -1,0 +1,9 @@
+{% extends "layouts/public.html" %}
+{% block title %}Page not found | Alderwick Family Health{% endblock %}
+{% block content %}
+<div class="card"><div class="card-body empty-lg empty">
+  <h1>We couldn't find that page</h1>
+  <p>The page may have moved, or the link may be incorrect.</p>
+  <a class="btn" href="{% url 'public:home' %}">Back to home</a>
+</div></div>
+{% endblock %}

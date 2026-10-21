@@ -1,0 +1,23 @@
+{% extends "layouts/public.html" %}
+{% block title %}Sign in | Alderwick Family Health{% endblock %}
+{% block main %}
+<div class="auth-wrap">
+  <div class="card auth-card">
+    <div class="card-body">
+      <h1 style="font-size:1.5rem">Sign in</h1>
+      <p class="muted">Patients, staff, and clinicians use the same sign-in. You'll be taken to the right place for your account.</p>
+      {% include "includes/form_errors.html" %}
+      <form method="post">
+        {% csrf_token %}
+        <div class="stack">
+          {% include "includes/field.html" with field=form.username %}
+          {% include "includes/field.html" with field=form.password %}
+        </div>
+        <input type="hidden" name="next" value="{{ next }}">
+        <div class="form-actions"><button class="btn" type="submit" style="width:100%">Sign in</button></div>
+      </form>
+    </div>
+    <div class="card-footer muted" style="font-size:.85rem">New patient? <a href="{% url 'public:request_appointment' %}">Request your first appointment</a> and we'll activate your portal account at your visit.</div>
+  </div>
+</div>
+{% endblock %}

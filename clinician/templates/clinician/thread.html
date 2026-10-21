@@ -1,0 +1,22 @@
+{% extends "clinician/base.html" %}
+{% block title %}{{ thread.subject }} | Alderwick{% endblock %}
+{% block content %}
+{% include "clinician/_patient_banner.html" %}
+<div class="layout-main-aside">
+  <div class="card">
+    <div class="card-header"><div><h2>{{ thread.subject }}</h2><span class="muted">{{ thread.get_category_display }}</span></div>{% status_badge thread.status thread.get_status_display %}</div>
+    {% include "includes/conversation.html" %}
+    <div class="card-footer">
+      <form method="post">{% csrf_token %}
+        {% include "includes/field.html" with field=form.body %}
+        <div class="form-actions"><button class="btn" type="submit">Send reply</button>{% if thread.status == 'open' %}<button class="btn btn-secondary" type="submit" name="action" value="close" formnovalidate>Close conversation</button>{% endif %}</div>
+      </form>
+    </div>
+  </div>
+  <aside class="stack">
+    <div class="card"><div class="card-header"><h3>Active problems</h3></div><ul class="list">{% for p in problems %}<li>{{ p.description }}</li>{% empty %}<li class="empty">None</li>{% endfor %}</ul></div>
+    <div class="card"><div class="card-header"><h3>Active medications</h3></div><ul class="list">{% for m in medications %}<li><div><div class="title">{{ m.name }} {{ m.dose }}</div><div class="sub">{{ m.frequency }}</div></div></li>{% empty %}<li class="empty">None</li>{% endfor %}</ul></div>
+    <div class="card"><div class="card-header"><h3>Recent results</h3></div><ul class="list">{% for r in recent_labs %}<li><div><div class="title">{{ r.test_name }} {{ r.value }} {{ r.unit }}</div><div class="sub">{{ r.collected_on|date:"M j, Y" }}</div></div>{% status_badge r.flag r.get_flag_display %}</li>{% empty %}<li class="empty">None</li>{% endfor %}</ul></div>
+  </aside>
+</div>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends "portal/base.html" %}
+{% block title %}Test Results | Alderwick Family Health{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>Test results</h1><p>Results are released after your provider reviews them, usually within 3 business days.</p></div></div>
+<div class="stack">
+  {% for key, results in grouped %}
+  <div class="card">
+    <div class="card-header"><h2>{{ key.1 }}</h2><span class="muted">Collected {{ key.0|date:"M j, Y" }}{% if key.2 %} &middot; Ordered by {{ key.2.display_name }}{% endif %}</span></div>
+    <div class="table-wrap"><table class="table">
+      <thead><tr><th>Test</th><th>Result</th><th>Reference range</th><th>Flag</th></tr></thead>
+      <tbody>{% for r in results %}<tr {% if r.is_abnormal %}class="row-highlight"{% endif %}><td>{{ r.test_name }}</td><td><strong>{{ r.value }}</strong> {{ r.unit }}</td><td>{{ r.reference_range }} {{ r.unit }}</td><td>{% status_badge r.flag r.get_flag_display %}</td></tr>{% endfor %}</tbody>
+    </table></div>
+  </div>
+  {% empty %}
+  <div class="card"><div class="empty empty-lg">You don't have any test results yet.</div></div>
+  {% endfor %}
+</div>
+<p class="muted" style="margin-top:16px">Have a question about a result? <a href="{% url 'portal:new_message' %}?category=test_results">Message your care team</a>.</p>
+{% endblock %}

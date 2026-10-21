@@ -1,0 +1,38 @@
+{% extends "frontdesk/base.html" %}
+{% block title %}Front Office | Alderwick{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>Good {% now "A" as ampm %}{% if ampm == "AM" %}morning{% else %}afternoon{% endif %}, {{ user.first_name }}</h1><p>{{ office.name|default:"All locations" }} &middot; {{ today|date:"l, F j" }}</p></div>
+  <form class="toolbar" method="get" action="{% url 'frontdesk:patient_search' %}"><label class="sr-only" for="dq">Find a patient</label><input class="input" id="dq" name="q" placeholder="Name, MRN, DOB, or phone"><button class="btn btn-secondary" type="submit">Find patient</button></form></div>
+<div class="grid grid-4" style="margin-bottom:18px">
+  <a class="card card-link stat stat-warn" href="{% url 'frontdesk:requests' %}?status=submitted"><div class="label">New requests</div><div class="value">{{ counts.new_requests }}</div><div class="hint">{{ counts.under_review }} under review</div></a>
+  <a class="card card-link stat stat-warn" href="{% url 'frontdesk:messages' %}"><div class="label">Unread messages</div><div class="value">{{ counts.unread_messages }}</div><div class="hint">Front office queue</div></a>
+  <a class="card card-link stat stat-accent" href="{% url 'frontdesk:schedule' %}"><div class="label">Today's appointments</div><div class="value">{{ counts.todays_appointments }}</div><div class="hint">{{ office.name|default:"All locations" }}</div></a>
+  <div class="card stat stat-accent"><div class="label">Checked in now</div><div class="value">{{ counts.checked_in }}</div><div class="hint">Waiting or in room</div></div>
+</div>
+<div class="grid grid-2">
+  <div class="card">
+    <div class="card-header"><h2>Open appointment requests</h2><a href="{% url 'frontdesk:requests' %}">View queue</a></div>
+    <ul class="list">
+      {% for r in recent_requests %}
+      <li><div><a class="title" href="{% url 'frontdesk:request_detail' r.pk %}">{{ r.full_name }}</a> {% if r.is_new_patient %}<span class="tag tag-accent">New patient</span>{% endif %}<div class="sub">{{ r.preferred_specialty.name|default:"Any specialty" }} &middot; {{ r.get_source_display }} &middot; {{ r.created_at|timesince }} ago</div><div class="sub">{{ r.reason|truncatechars:90 }}</div></div>{% status_badge r.status r.get_status_display %}</li>
+      {% empty %}<li class="empty">The request queue is empty.</li>{% endfor %}
+    </ul>
+  </div>
+  <div class="card">
+    <div class="card-header"><h2>Patient messages</h2><a href="{% url 'frontdesk:messages' %}">View inbox</a></div>
+    <ul class="list">
+      {% for t in recent_threads %}
+      <li><div><a class="title" href="{% url 'frontdesk:thread' t.pk %}">{{ t.subject }}</a>{% if t.staff_has_unread %} <span class="count">New</span>{% endif %}<div class="sub">{{ t.patient.full_name }} &middot; {{ t.get_category_display }} &middot; {{ t.updated_at|timesince }} ago</div></div></li>
+      {% empty %}<li class="empty">No open messages.</li>{% endfor %}
+    </ul>
+  </div>
+  <div class="card" style="grid-column:1/-1">
+    <div class="card-header"><h2>Today at {{ office.name|default:"all locations" }}</h2><a href="{% url 'frontdesk:schedule' %}">Full schedule</a></div>
+    <div class="table-wrap"><table class="table">
+      <thead><tr><th>Time</th><th>Patient</th><th>Provider</th><th>Visit</th><th>Status</th></tr></thead>
+      <tbody>{% for a in todays %}<tr><td>{{ a.start|time:"g:i A" }}</td><td><a href="{% url 'frontdesk:patient_detail' a.patient.pk %}">{{ a.patient.full_name }}</a></td><td>{{ a.provider.short_name }}</td><td>{{ a.appointment_type.name }}</td><td>{% status_badge a.status a.get_status_display %}</td></tr>
+      {% empty %}<tr><td colspan="5" class="empty">No appointments today.</td></tr>{% endfor %}</tbody>
+    </table></div>
+  </div>
+</div>
+{% endblock %}

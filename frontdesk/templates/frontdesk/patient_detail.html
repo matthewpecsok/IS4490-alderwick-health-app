@@ -1,0 +1,51 @@
+{% extends "frontdesk/base.html" %}
+{% block title %}{{ patient.full_name }} | Alderwick{% endblock %}
+{% block content %}
+<div class="patient-banner">
+  <span class="avatar {{ patient.pk|avatar_variant }}">{{ patient.first_name|first }}{{ patient.last_name|first }}</span>
+  <div><h1>{{ patient.display_name }}</h1>
+    <div class="facts"><span>MRN <strong>{{ patient.mrn }}</strong></span><span>DOB <strong>{{ patient.date_of_birth|date:"m/d/Y" }}</strong> ({{ patient.age_today }})</span><span>Phone <strong>{{ patient.phone }}</strong></span><span>Language <strong>{{ patient.preferred_language }}</strong></span></div></div>
+  <div style="margin-left:auto" class="toolbar"><a class="btn" href="{% url 'frontdesk:book_for_patient' patient.pk %}">Book appointment</a></div>
+</div>
+<div class="layout-main-aside">
+  <div class="stack">
+    <div class="card">
+      <div class="card-header"><h2>Upcoming appointments</h2></div>
+      <div class="table-wrap"><table class="table">
+        <thead><tr><th>When</th><th>Provider</th><th>Visit</th><th>Location</th><th>Status</th><th></th></tr></thead>
+        <tbody>{% for a in upcoming %}<tr {% if a.status == 'cancelled' %}class="row-muted"{% endif %}><td>{{ a.start|date:"D M j, g:i A" }}</td><td>{{ a.provider.short_name }}</td><td>{{ a.appointment_type.name }}</td><td>{{ a.office.name|cut:"Alderwick " }}</td><td>{% status_badge a.status a.get_status_display %}</td>
+          <td class="actions">{% if a.status == 'scheduled' %}<form class="inline-form" method="post" action="{% url 'frontdesk:appointment_action' a.pk %}" onsubmit="var r=prompt('Cancellation reason'); if(!r) return false; this.reason.value=r;">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><input type="hidden" name="action" value="cancel"><input type="hidden" name="reason" value=""><button class="btn btn-sm btn-secondary" type="submit">Cancel</button></form>{% endif %}</td></tr>
+        {% empty %}<tr><td colspan="6" class="empty">No upcoming appointments.</td></tr>{% endfor %}</tbody>
+      </table></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h2>Recent appointments</h2></div>
+      <div class="table-wrap"><table class="table">
+        <thead><tr><th>When</th><th>Provider</th><th>Visit</th><th>Status</th></tr></thead>
+        <tbody>{% for a in past %}<tr><td>{{ a.start|date:"M j, Y" }}</td><td>{{ a.provider.short_name }}</td><td>{{ a.appointment_type.name }}</td><td>{% status_badge a.status a.get_status_display %}</td></tr>{% empty %}<tr><td colspan="4" class="empty">None.</td></tr>{% endfor %}</tbody>
+      </table></div>
+    </div>
+    <div class="grid grid-2">
+      <div class="card"><div class="card-header"><h3>Appointment requests</h3></div>
+        <ul class="list">{% for r in requests %}<li><a href="{% url 'frontdesk:request_detail' r.pk %}">{{ r.reference }}</a>{% status_badge r.status r.get_status_display %}</li>{% empty %}<li class="empty">None.</li>{% endfor %}</ul></div>
+      <div class="card"><div class="card-header"><h3>Front-office messages</h3></div>
+        <ul class="list">{% for t in threads %}<li><a href="{% url 'frontdesk:thread' t.pk %}">{{ t.subject }}</a>{% status_badge t.status t.get_status_display %}</li>{% empty %}<li class="empty">None.</li>{% endfor %}</ul></div>
+    </div>
+  </div>
+  <aside class="card"><div class="card-body">
+    <h3>Demographics and coverage</h3>
+    <dl class="dl" style="grid-template-columns:110px 1fr">
+      <dt>Address</dt><dd>{{ patient.address_line }}<br>{{ patient.city }}, {{ patient.state }} {{ patient.postal_code }}</dd>
+      <dt>Email</dt><dd>{{ patient.email|default:"-" }}</dd>
+      {% if patient.guardian_name %}<dt>Guardian</dt><dd>{{ patient.guardian_name }}</dd>{% endif %}
+      <dt>Insurance</dt><dd>{{ patient.insurance_plan|default:"None" }}</dd>
+      <dt>Member ID</dt><dd>{{ patient.insurance_member_id|default:"-" }}</dd>
+      <dt>Primary care</dt><dd>{{ patient.primary_provider.display_name|default:"-" }}</dd>
+      <dt>Home clinic</dt><dd>{{ patient.primary_office.name|default:"-" }}</dd>
+      <dt>Emergency contact</dt><dd>{{ patient.emergency_contact_name }}<br>{{ patient.emergency_contact_phone }}</dd>
+      <dt>Portal account</dt><dd>{% if patient.user %}Active{% else %}Not activated{% endif %}</dd>
+    </dl>
+    <p class="muted" style="font-size:.8rem;margin-top:12px">Clinical information is available to the care team only.</p>
+  </div></aside>
+</div>
+{% endblock %}

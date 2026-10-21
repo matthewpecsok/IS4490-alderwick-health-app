@@ -1,0 +1,14 @@
+{% extends "portal/base.html" %}
+{% block title %}Messages | Alderwick Family Health{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>Messages</h1><p>We respond within 2 business days. Messages are not monitored for emergencies.</p></div>
+  <a class="btn" href="{% url 'portal:new_message' %}">New message</a></div>
+<div class="card"><div class="table-wrap"><table class="table">
+  <thead><tr><th>Subject</th><th>Category</th><th>Last update</th><th>Status</th></tr></thead>
+  <tbody>
+    {% for t in threads %}
+    <tr {% if t.patient_has_unread %}class="unread-row"{% endif %}><td><a href="{% url 'portal:thread' t.pk %}"><strong>{{ t.subject }}</strong></a>{% if t.patient_has_unread %} <span class="count">New</span>{% endif %}<div class="muted" style="font-size:.84rem">{{ t.last_message.body|truncatechars:90 }}</div></td><td>{{ t.get_category_display }}</td><td>{{ t.updated_at|date:"M j, g:i A" }}</td><td>{% status_badge t.status t.get_status_display %}</td></tr>
+    {% empty %}<tr><td colspan="4" class="empty">No messages yet.</td></tr>{% endfor %}
+  </tbody>
+</table></div></div>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="utility-bar">
+  <div class="container">
+    <span>Call <strong>{{ practice.main_phone }}</strong> &middot; After-hours nurse line <strong>{{ practice.nurse_line }}</strong></span>
+    <span><strong>Medical emergency?</strong> Call 911.</span>
+  </div>
+</div>
+<header class="site-header">
+  <div class="container">
+    <a class="brand" href="{% url 'public:home' %}">{% include "includes/logo.html" %}<span>Alderwick Family Health<small>Care for every stage of life</small></span></a>
+    <nav class="main-nav" aria-label="Main">
+      {% with path=request.path %}
+      <a href="{% url 'public:provider_list' %}" {% if '/providers/' in path %}class="active"{% endif %}>Find a Provider</a>
+      <a href="{% url 'public:location_list' %}" {% if '/locations/' in path %}class="active"{% endif %}>Locations</a>
+      <a href="{% url 'public:insurance' %}" {% if '/insurance/' in path %}class="active"{% endif %}>Insurance</a>
+      <a href="{% url 'public:resource_list' %}" {% if '/patient-resources/' in path %}class="active"{% endif %}>Patient Resources</a>
+      {% endwith %}
+    </nav>
+    <div class="header-actions">
+      {% if user.is_authenticated %}
+        <a class="btn btn-secondary btn-sm" href="{% url 'accounts:home' %}">{% if user.is_patient %}My Portal{% else %}My Workspace{% endif %}</a>
+        <form class="inline-form" method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}<button class="btn btn-secondary btn-sm" type="submit">Sign out</button></form>
+      {% else %}
+        <a class="btn btn-secondary btn-sm" href="{% url 'accounts:login' %}">Sign in</a>
+      {% endif %}
+      <a class="btn btn-accent btn-sm" href="{% url 'public:request_appointment' %}">Request an appointment</a>
+    </div>
+  </div>
+</header>
+{% block subnav %}{% endblock %}
+<main id="main">
+  {% block main %}
+  <div class="container page">
+    {% include "includes/messages.html" %}
+    {% block content %}{% endblock %}
+  </div>
+  {% endblock %}
+</main>
+<footer class="site-footer">
+  <div class="container">
+    <div class="grid grid-4">
+      <div>
+        <h4>Alderwick Family Health</h4>
+        <p>Primary and specialty care for families across the Salt Lake valley since 1998.</p>
+        <p>Main line {{ practice.main_phone }}<br>Billing {{ practice.billing_phone }}</p>
+      </div>
+      <div>
+        <h4>Care</h4>
+        <ul>
+          <li><a href="{% url 'public:provider_list' %}">Find a provider</a></li>
+          <li><a href="{% url 'public:request_appointment' %}">Request an appointment</a></li>
+          <li><a href="{% url 'public:location_detail' 'virtual-care' %}">Video visits</a></li>
+          <li><a href="{% url 'public:insurance' %}">Insurance we accept</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Patients</h4>
+        <ul>
+          <li><a href="{% url 'portal:dashboard' %}">Patient portal</a></li>
+          <li><a href="{% url 'public:resource_detail' 'new-patients' %}">New patients</a></li>
+          <li><a href="{% url 'public:resource_detail' 'insurance-billing' %}">Billing questions</a></li>
+          <li><a href="{% url 'public:resource_detail' 'after-hours-and-emergencies' %}">After-hours care</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Staff</h4>
+        <ul>
+          <li><a href="{% url 'accounts:login' %}">Staff sign-in</a></li>
+          <li><a href="{% url 'public:resource_detail' 'privacy-notice' %}">Privacy notice</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="legal">&copy; {% now "Y" %} Alderwick Family Health. Alderwick Family Health is a fictional organization created for IS 4490 at the University of Utah. All people, records, and data on this site are synthetic.</div>
+  </div>
+</footer>
+{% endblock %}

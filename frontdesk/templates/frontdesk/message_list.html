@@ -1,0 +1,21 @@
+{% extends "frontdesk/base.html" %}
+{% block title %}Patient Messages | Alderwick{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>Patient messages</h1><p>Scheduling, billing, and records messages. Clinical questions route to each patient's care team.</p></div>
+  <form class="toolbar" method="get">
+    <select class="input" name="status" aria-label="Status"><option value="open" {% if status == 'open' %}selected{% endif %}>Open</option><option value="closed" {% if status == 'closed' %}selected{% endif %}>Closed</option><option value="all" {% if status == 'all' %}selected{% endif %}>All</option></select>
+    <select class="input" name="category" aria-label="Category"><option value="">All categories</option>{% for v, l in categories %}<option value="{{ v }}" {% if category == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select>
+    <button class="btn btn-secondary" type="submit">Filter</button>
+  </form></div>
+<div class="card"><div class="table-wrap"><table class="table">
+  <thead><tr><th>Subject</th><th>Patient</th><th>Category</th><th>Updated</th><th>Status</th></tr></thead>
+  <tbody>
+    {% for t in page %}
+    <tr {% if t.staff_has_unread %}class="unread-row"{% endif %}><td><a href="{% url 'frontdesk:thread' t.pk %}"><strong>{{ t.subject }}</strong></a>{% if t.staff_has_unread %} <span class="count">New</span>{% endif %}<div class="muted" style="font-size:.84rem">{{ t.last_message.body|truncatechars:100 }}</div></td>
+      <td>{{ t.patient.full_name }}<div class="muted" style="font-size:.8rem">{{ t.patient.mrn }}</div></td><td>{{ t.get_category_display }}</td><td>{{ t.updated_at|date:"M j, g:i A" }}</td>
+      <td>{% if t.awaiting_practice_reply %}<span class="badge badge-warning">Needs reply</span>{% else %}{% status_badge t.status t.get_status_display %}{% endif %}</td></tr>
+    {% empty %}<tr><td colspan="5" class="empty">No messages.</td></tr>{% endfor %}
+  </tbody>
+</table></div></div>
+{% include "includes/pagination.html" %}
+{% endblock %}

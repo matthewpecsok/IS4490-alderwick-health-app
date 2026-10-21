@@ -1,0 +1,78 @@
+{% extends "frontdesk/base.html" %}
+{% block title %}Request {{ req.reference }} | Alderwick{% endblock %}
+{% block content %}
+<div class="breadcrumbs"><a href="{% url 'frontdesk:requests' %}">Appointment requests</a> / {{ req.reference }}</div>
+<div class="page-header"><div><h1>{{ req.full_name }}</h1><p>{{ req.reference }} &middot; received {{ req.created_at|date:"M j, Y g:i A" }} via {{ req.get_source_display|lower }}</p></div>{% status_badge req.status req.get_status_display %}</div>
+<div class="layout-main-aside">
+  <div class="stack">
+    <div class="card"><div class="card-body">
+      <h2>Request</h2>
+      <p style="white-space:pre-line">{{ req.reason }}</p>
+      <dl class="dl">
+        <dt>Type of care</dt><dd>{{ req.preferred_specialty.name|default:"Not specified" }}</dd>
+        <dt>Preferred provider</dt><dd>{{ req.preferred_provider.display_name|default:"No preference" }}</dd>
+        <dt>Preferred location</dt><dd>{{ req.preferred_office.name|default:"No preference" }}</dd>
+        <dt>Availability</dt><dd>{{ req.preferred_times|default:"Not specified" }}</dd>
+      </dl>
+    </div></div>
+
+    {% if req.status == 'scheduled' and req.appointment %}
+    <div class="alert alert-success">Scheduled: {{ req.appointment.start|date:"l, F j \a\t g:i A" }} with {{ req.appointment.provider.display_name }} at {{ req.appointment.office.name }}.</div>
+    {% elif req.status == 'declined' %}
+    <div class="alert alert-info"><strong>Declined.</strong> {{ req.decline_reason }}</div>
+    {% endif %}
+
+    {% if req.is_open %}
+    <div class="card">
+      <div class="card-header"><h2>Schedule this request</h2></div>
+      <div class="card-body">
+        {% url 'frontdesk:request_action' req.pk as book_action %}
+        {% if req.patient %}{% include "frontdesk/_slot_picker.html" with book_action=book_action %}
+        {% else %}{% include "frontdesk/_slot_picker.html" with book_action=book_action show_new_patient_fields=1 %}
+        <p class="muted" style="font-size:.85rem;margin-top:10px">Booking will register {{ req.full_name }} as a new patient.</p>{% endif %}
+      </div>
+    </div>
+    <div class="card"><div class="card-body">
+      <h2>Decline</h2>
+      <form method="post" action="{% url 'frontdesk:request_action' req.pk %}">{% csrf_token %}<input type="hidden" name="action" value="decline">
+        {% include "includes/field.html" with field=decline_form.decline_reason %}
+        <div class="form-actions"><button class="btn btn-danger" type="submit">Decline request</button></div>
+      </form>
+    </div></div>
+    {% endif %}
+  </div>
+
+  <aside class="stack">
+    <div class="card"><div class="card-body">
+      <h3>Contact and coverage</h3>
+      <dl class="dl" style="grid-template-columns:96px 1fr">
+        <dt>DOB</dt><dd>{{ req.date_of_birth|date:"M j, Y" }}</dd>
+        <dt>Phone</dt><dd>{{ req.phone|default:"-" }}</dd>
+        <dt>Email</dt><dd>{{ req.email|default:"-" }}</dd>
+        <dt>Insurance</dt><dd>{{ req.insurance_plan|default:req.insurance_other|default:"Not provided" }}</dd>
+        <dt>Patient</dt><dd>{% if req.patient %}<a href="{% url 'frontdesk:patient_detail' req.patient.pk %}">{{ req.patient.mrn }}</a>{% else %}New{% endif %}</dd>
+      </dl>
+      {% if req.status == 'submitted' %}
+      <form method="post" action="{% url 'frontdesk:request_action' req.pk %}" style="margin-top:14px">{% csrf_token %}<input type="hidden" name="action" value="start_review"><button class="btn btn-secondary" type="submit">Mark under review</button></form>
+      {% endif %}
+    </div></div>
+    {% if matches %}
+    <div class="card"><div class="card-body">
+      <h3>Possible existing patient</h3>
+      {% for m in matches %}
+      <form method="post" action="{% url 'frontdesk:request_action' req.pk %}" class="toolbar" style="justify-content:space-between">{% csrf_token %}<input type="hidden" name="action" value="link_patient"><input type="hidden" name="patient_id" value="{{ m.pk }}">
+        <span>{{ m.full_name }} &middot; {{ m.mrn }}</span><button class="btn btn-sm btn-secondary" type="submit">Link</button></form>
+      {% endfor %}
+    </div></div>
+    {% endif %}
+    <div class="card"><div class="card-body">
+      <h3>Internal notes</h3>
+      <form method="post" action="{% url 'frontdesk:request_action' req.pk %}">{% csrf_token %}<input type="hidden" name="action" value="save_notes">
+        {% include "includes/field.html" with field=notes_form.staff_notes %}
+        <div class="form-actions"><button class="btn btn-secondary btn-sm" type="submit">Save notes</button></div>
+      </form>
+      {% if req.handled_by %}<p class="muted" style="font-size:.82rem;margin-top:10px">Handled by {{ req.handled_by.display_name }}</p>{% endif %}
+    </div></div>
+  </aside>
+</div>
+{% endblock %}

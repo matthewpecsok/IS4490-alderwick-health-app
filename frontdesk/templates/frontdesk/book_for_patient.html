@@ -1,0 +1,10 @@
+{% extends "frontdesk/base.html" %}
+{% block title %}Book Appointment | Alderwick{% endblock %}
+{% block content %}
+<div class="breadcrumbs"><a href="{% url 'frontdesk:patient_detail' patient.pk %}">{{ patient.full_name }}</a> / Book appointment</div>
+<div class="page-header"><div><h1>Book an appointment</h1><p>{{ patient.full_name }} &middot; {{ patient.mrn }} &middot; {{ patient.insurance_plan|default:"No insurance on file" }}</p></div></div>
+<div class="card"><div class="card-body">
+  {% url 'frontdesk:book_for_patient' patient.pk as book_action %}
+  {% include "frontdesk/_slot_picker.html" with book_action=book_action show_reason_field=1 %}
+</div></div>
+{% endblock %}

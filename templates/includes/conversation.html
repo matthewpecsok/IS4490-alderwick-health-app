@@ -1,0 +1,10 @@
+<div class="conversation">
+  {% for m in thread_messages %}
+  <div class="bubble {% if m.from_patient %}from-patient{% else %}from-practice{% endif %}">
+    <div class="meta">{{ m.sender_name }} &middot; {{ m.created_at|date:"M j, Y g:i A" }}</div>
+    <p>{{ m.body }}</p>
+  </div>
+  {% empty %}
+  <div class="empty">No messages yet.</div>
+  {% endfor %}
+</div>

@@ -1,0 +1,19 @@
+{% extends "layouts/public.html" %}
+{% block title %}Insurance We Accept | Alderwick Family Health{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>Insurance we accept</h1><p>Coverage varies by specialty. Check individual provider pages for details.</p></div></div>
+<div class="card"><div class="table-wrap">
+  <table class="table">
+    <thead><tr><th>Plan</th><th>Type</th>{% for s in specialties %}<th>{{ s.name }}</th>{% endfor %}</tr></thead>
+    <tbody>
+      {% for plan, row in matrix %}
+      <tr><td><strong>{{ plan.name }}</strong><div class="muted" style="font-size:.8rem">{{ plan.carrier }}{% if plan.member_services_phone %} &middot; {{ plan.member_services_phone }}{% endif %}</div></td>
+        <td>{{ plan.get_plan_type_display }}</td>
+        {% for s, accepted in row %}<td>{% if accepted %}<span class="check" aria-label="Accepted">&#10003;</span>{% else %}<span class="cross" aria-label="Not accepted">&mdash;</span>{% endif %}</td>{% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+<p class="muted" style="margin-top:14px">Questions about a bill? Call our billing office at {{ practice.billing_phone }} or read the <a href="{% url 'public:resource_detail' 'insurance-billing' %}">Insurance and Billing FAQ</a>.</p>
+{% endblock %}

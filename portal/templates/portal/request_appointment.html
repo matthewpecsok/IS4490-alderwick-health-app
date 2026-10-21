@@ -1,0 +1,31 @@
+{% extends "portal/base.html" %}
+{% block title %}Request an Appointment | Alderwick Family Health{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>Request an appointment</h1><p>Our team will contact you within 1 business day to confirm a time.</p></div></div>
+<div class="layout-main-aside">
+  <form class="card" method="post">
+    {% csrf_token %}
+    <div class="card-body">
+      <div class="emergency-note" style="margin-bottom:18px">For a medical emergency, call 911. For urgent questions after hours, call {{ practice.nurse_line }}.</div>
+      {% include "includes/form_errors.html" %}
+      <div class="form-grid">
+        {% include "includes/field.html" with field=form.preferred_specialty %}
+        {% include "includes/field.html" with field=form.preferred_provider %}
+        {% include "includes/field.html" with field=form.preferred_office %}
+        {% include "includes/field.html" with field=form.preferred_times %}
+        {% include "includes/field.html" with field=form.reason full=1 %}
+      </div>
+      <div class="form-actions"><button class="btn btn-accent" type="submit">Submit request</button><a href="{% url 'portal:appointments' %}">Cancel</a></div>
+    </div>
+  </form>
+  <aside class="card"><div class="card-body">
+    <h3>We have on file</h3>
+    <dl class="dl" style="grid-template-columns:90px 1fr">
+      <dt>Name</dt><dd>{{ patient.full_name }}</dd>
+      <dt>Phone</dt><dd>{{ patient.phone }}</dd>
+      <dt>Insurance</dt><dd>{{ patient.insurance_plan|default:"None on file" }}</dd>
+    </dl>
+    <p class="muted" style="margin-top:12px">Something changed? <a href="{% url 'portal:new_message' %}">Send us a message</a>.</p>
+  </div></aside>
+</div>
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends "layouts/public.html" %}
+{% block title %}Find a Provider | Alderwick Family Health{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1>Find a provider</h1><p>{{ total }} provider{{ total|pluralize }} match your search.</p></div>
+</div>
+<div class="layout-sidebar">
+  <form class="card" method="get" aria-label="Filter providers">
+    <div class="card-body filters">
+      <div class="field"><label for="f-q">Name or specialty</label><input class="input" id="f-q" name="q" value="{{ filters.q }}"></div>
+      <div class="field"><label for="f-specialty">Specialty</label>
+        <select class="input" id="f-specialty" name="specialty"><option value="">Any</option>
+          {% for s in specialties %}<option value="{{ s.slug }}" {% if filters.specialty == s.slug %}selected{% endif %}>{{ s.name }}</option>{% endfor %}
+        </select></div>
+      <div class="field"><label for="f-office">Location</label>
+        <select class="input" id="f-office" name="office"><option value="">Any</option>
+          {% for o in offices %}<option value="{{ o.slug }}" {% if filters.office == o.slug %}selected{% endif %}>{{ o.name }}</option>{% endfor %}
+        </select></div>
+      <div class="field"><label for="f-insurance">Insurance</label>
+        <select class="input" id="f-insurance" name="insurance"><option value="">Any</option>
+          {% for p in plans %}<option value="{{ p.code }}" {% if filters.insurance == p.code %}selected{% endif %}>{{ p.name }}</option>{% endfor %}
+        </select></div>
+      <div class="field"><label for="f-language">Language</label>
+        <select class="input" id="f-language" name="language"><option value="">Any</option>
+          {% for l in languages %}<option value="{{ l }}" {% if filters.language == l %}selected{% endif %}>{{ l }}</option>{% endfor %}
+        </select></div>
+      <div class="field"><label for="f-gender">Provider gender</label>
+        <select class="input" id="f-gender" name="gender"><option value="">No preference</option>
+          {% for value, label in gender_choices %}<option value="{{ value }}" {% if filters.gender == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+        </select></div>
+      <div class="checkbox-field"><input type="checkbox" id="f-accepting" name="accepting" value="1" {% if filters.accepting %}checked{% endif %}><label for="f-accepting">Accepting new patients</label></div>
+      <div class="checkbox-field"><input type="checkbox" id="f-tele" name="telehealth" value="1" {% if filters.telehealth %}checked{% endif %}><label for="f-tele">Offers video visits</label></div>
+      <div class="toolbar"><button class="btn" type="submit">Apply filters</button><a href="{% url 'public:provider_list' %}">Clear</a></div>
+    </div>
+  </form>
+
+  <div class="stack">
+    {% for provider, slot in results %}
+    <article class="card provider-card">
+      <div class="avatar {{ provider.pk|avatar_variant }}">{{ provider.initials }}</div>
+      <div>
+        <h3><a href="{{ provider.get_absolute_url }}">{{ provider.display_name }}</a></h3>
+        <div class="muted">{{ provider.title }}</div>
+        <div class="provider-meta">
+          <span>{% for o in provider.offices.all %}{{ o.name|cut:"Alderwick " }}{% if not forloop.last %} &middot; {% endif %}{% endfor %}</span>
+          <span>Speaks {{ provider.languages }}</span>
+        </div>
+        <div class="toolbar">
+          {% if provider.accepting_new_patients %}<span class="tag tag-brand">Accepting new patients</span>{% else %}<span class="tag">Established patients only</span>{% endif %}
+          {% if provider.offers_telehealth %}<span class="tag tag-accent">Video visits</span>{% endif %}
+        </div>
+      </div>
+      <div class="next-available">
+        {% if slot %}<span class="muted">Next available</span><strong>{{ slot.local_start|date:"D, M j \a\t g:i A" }}</strong><span class="muted">{{ slot.office.name|cut:"Alderwick " }}</span>{% else %}<strong>No openings in the next 30 days</strong>{% endif %}
+        <div style="margin-top:8px"><a class="btn btn-sm" href="{% url 'public:request_appointment' %}?provider={{ provider.slug }}">Request appointment</a></div>
+      </div>
+    </article>
+    {% empty %}
+    <div class="card"><div class="empty empty-lg"><h3>No providers match those filters.</h3><p>Try removing a filter, or call {{ practice.main_phone }} and we'll help you find the right provider.</p></div></div>
+    {% endfor %}
+    {% include "includes/pagination.html" %}
+  </div>
+</div>
+{% endblock %}

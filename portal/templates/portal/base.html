@@ -1,0 +1,16 @@
+{% extends "layouts/public.html" %}
+{% block subnav %}
+<nav class="subnav" aria-label="Patient portal">
+  <div class="container">
+    {% with name=request.resolver_match.url_name %}
+    <a href="{% url 'portal:dashboard' %}" {% if name == 'dashboard' %}class="active"{% endif %}>Home</a>
+    <a href="{% url 'portal:appointments' %}" {% if name == 'appointments' or name == 'request_appointment' %}class="active"{% endif %}>Appointments</a>
+    <a href="{% url 'portal:health_summary' %}" {% if name == 'health_summary' %}class="active"{% endif %}>Health summary</a>
+    <a href="{% url 'portal:lab_results' %}" {% if name == 'lab_results' %}class="active"{% endif %}>Test results</a>
+    <a href="{% url 'portal:visits' %}" {% if name == 'visits' or name == 'visit_detail' %}class="active"{% endif %}>Visit notes</a>
+    <a href="{% url 'portal:messages' %}" {% if name == 'messages' or name == 'thread' or name == 'new_message' %}class="active"{% endif %}>Messages</a>
+    <a href="{% url 'portal:profile' %}" {% if name == 'profile' %}class="active"{% endif %}>Profile</a>
+    {% endwith %}
+  </div>
+</nav>
+{% endblock %}

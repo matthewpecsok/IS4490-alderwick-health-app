@@ -1,0 +1,18 @@
+{% extends "portal/base.html" %}
+{% block title %}New Message | Alderwick Family Health{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>New message</h1><p>Scheduling, billing, and records questions go to our front office. Prescription, test result, and medical questions go to your care team.</p></div></div>
+<form class="card" method="post" style="max-width:760px">
+  {% csrf_token %}
+  <div class="card-body">
+    <div class="emergency-note" style="margin-bottom:18px"><strong>Do not use messages for emergencies.</strong> If you have chest pain, trouble breathing, or another emergency, call 911.</div>
+    {% include "includes/form_errors.html" %}
+    <div class="stack">
+      {% include "includes/field.html" with field=form.category %}
+      {% include "includes/field.html" with field=form.subject %}
+      {% include "includes/field.html" with field=form.body %}
+    </div>
+    <div class="form-actions"><button class="btn" type="submit">Send message</button><a href="{% url 'portal:messages' %}">Cancel</a></div>
+  </div>
+</form>
+{% endblock %}

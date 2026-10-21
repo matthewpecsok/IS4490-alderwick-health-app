@@ -1,0 +1,15 @@
+{% extends "layouts/staff.html" %}
+{% block workspace_name %}Front Office{% endblock %}
+{% block sidebar %}
+{% with name=request.resolver_match.url_name %}
+<div class="nav-label">Front office</div>
+<a class="nav-item {% if name == 'dashboard' %}active{% endif %}" href="{% url 'frontdesk:dashboard' %}">Dashboard</a>
+<a class="nav-item {% if name == 'requests' or name == 'request_detail' %}active{% endif %}" href="{% url 'frontdesk:requests' %}">Appointment requests</a>
+<a class="nav-item {% if name == 'schedule' %}active{% endif %}" href="{% url 'frontdesk:schedule' %}">Schedule</a>
+<a class="nav-item {% if name == 'messages' or name == 'thread' %}active{% endif %}" href="{% url 'frontdesk:messages' %}">Patient messages</a>
+<a class="nav-item {% if 'patient' in name or name == 'book_for_patient' %}active{% endif %}" href="{% url 'frontdesk:patient_search' %}">Patient lookup</a>
+<div class="nav-label">Practice</div>
+<a class="nav-item" href="{% url 'public:resource_list' %}" target="_blank" rel="noopener">Policies and FAQ</a>
+<a class="nav-item" href="{% url 'public:provider_list' %}" target="_blank" rel="noopener">Provider directory</a>
+{% endwith %}
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "frontdesk/base.html" %}
+{% block title %}Appointment Requests | Alderwick{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>Appointment requests</h1><p>Requests from the website, the patient portal, and phone calls.</p></div></div>
+<form class="card" method="get" style="margin-bottom:16px"><div class="card-body toolbar">
+  <label class="sr-only" for="rq-status">Status</label>
+  <select class="input" id="rq-status" name="status">
+    <option value="open" {% if status == 'open' %}selected{% endif %}>Open (submitted + under review)</option>
+    {% for v, l in status_choices %}<option value="{{ v }}" {% if status == v %}selected{% endif %}>{{ l }}</option>{% endfor %}
+    <option value="all" {% if status == 'all' %}selected{% endif %}>All</option>
+  </select>
+  <label class="sr-only" for="rq-source">Source</label>
+  <select class="input" id="rq-source" name="source"><option value="">All sources</option>{% for v, l in source_choices %}<option value="{{ v }}" {% if source == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select>
+  <label class="sr-only" for="rq-q">Search</label>
+  <input class="input" id="rq-q" name="q" value="{{ query }}" placeholder="Name or reference">
+  <button class="btn btn-secondary" type="submit">Filter</button>
+</div></form>
+<div class="card"><div class="table-wrap"><table class="table">
+  <thead><tr><th>Received</th><th>Patient</th><th>Request</th><th>Preferences</th><th>Source</th><th>Status</th></tr></thead>
+  <tbody>
+    {% for r in page %}
+    <tr><td>{{ r.created_at|date:"M j, g:i A" }}<div class="muted" style="font-size:.8rem">{{ r.reference }}</div></td>
+      <td><a href="{% url 'frontdesk:request_detail' r.pk %}"><strong>{{ r.full_name }}</strong></a><div class="muted" style="font-size:.8rem">DOB {{ r.date_of_birth|date:"m/d/Y" }}</div>{% if r.is_new_patient %}<span class="tag tag-accent">New patient</span>{% endif %}</td>
+      <td>{{ r.reason|truncatechars:110 }}</td>
+      <td style="font-size:.85rem">{{ r.preferred_specialty.name|default:"Any specialty" }}<br>{% if r.preferred_provider %}{{ r.preferred_provider.short_name }}<br>{% endif %}<span class="muted">{{ r.preferred_office.name|default:"Any location" }}</span></td>
+      <td>{{ r.get_source_display }}</td><td>{% status_badge r.status r.get_status_display %}</td></tr>
+    {% empty %}<tr><td colspan="6" class="empty">No requests match.</td></tr>{% endfor %}
+  </tbody>
+</table></div></div>
+{% include "includes/pagination.html" %}
+{% endblock %}

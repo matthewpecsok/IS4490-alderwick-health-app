@@ -1,0 +1,18 @@
+{% extends "layouts/public.html" %}
+{% block title %}Locations | Alderwick Family Health{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>Locations</h1><p>Four clinics across the Salt Lake valley, plus video visits from anywhere in Utah.</p></div></div>
+<div class="grid grid-2">
+  {% for office in offices %}
+  <div class="card"><div class="card-body">
+    <h2><a href="{{ office.get_absolute_url }}">{{ office.name }}</a></h2>
+    <p class="muted">{{ office.full_address }}<br>{{ office.phone }}</p>
+    <p>{{ office.description }}</p>
+    <table class="table" style="font-size:.85rem">
+      {% for h in office.hours.all %}<tr><td>{{ h.get_weekday_display }}</td><td>{{ h.opens|time:"g:i A" }} &ndash; {{ h.closes|time:"g:i A" }}</td></tr>{% endfor %}
+    </table>
+    <div class="form-actions"><a class="btn btn-secondary btn-sm" href="{{ office.get_absolute_url }}">{{ office.provider_count }} providers &middot; details</a></div>
+  </div></div>
+  {% endfor %}
+</div>
+{% endblock %}

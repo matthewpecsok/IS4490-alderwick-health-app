@@ -1,0 +1,16 @@
+{% extends "layouts/public.html" %}
+{% block title %}{{ document.title }} | Alderwick Family Health{% endblock %}
+{% block content %}
+<div class="breadcrumbs"><a href="{% url 'public:resource_list' %}">Patient resources</a> / {{ document.title }}</div>
+<div class="layout-main-aside">
+  <article class="card"><div class="card-body prose">
+    <h1>{{ document.title }}</h1>
+    <p class="muted">Effective {{ document.effective_date|date:"F j, Y" }}</p>
+    {{ document.body|simple_markdown }}
+  </div></article>
+  <aside class="card">
+    <div class="card-header"><h3>More resources</h3></div>
+    <ul class="list">{% for doc in others %}<li><a href="{{ doc.get_absolute_url }}">{{ doc.title }}</a></li>{% endfor %}</ul>
+  </aside>
+</div>
+{% endblock %}

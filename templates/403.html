@@ -1,0 +1,9 @@
+{% extends "layouts/public.html" %}
+{% block title %}Access denied | Alderwick Family Health{% endblock %}
+{% block content %}
+<div class="card"><div class="card-body empty-lg empty">
+  <h1>You don't have access to this page</h1>
+  <p>This area is limited to a different type of account. The attempt has been recorded.</p>
+  <a class="btn" href="{% if user.is_authenticated %}{% url 'accounts:home' %}{% else %}{% url 'public:home' %}{% endif %}">Go to my home page</a>
+</div></div>
+{% endblock %}

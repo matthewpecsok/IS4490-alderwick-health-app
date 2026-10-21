@@ -1,0 +1,17 @@
+{
+  "name": "Alderwick Family Health",
+  "image": "mcr.microsoft.com/devcontainers/python:3.12",
+  "postCreateCommand": "pip install --user -r requirements.txt && python manage.py migrate --noinput && python manage.py seed_demo_data",
+  "forwardPorts": [8000],
+  "portsAttributes": {
+    "8000": {
+      "label": "Alderwick web app",
+      "onAutoForward": "openBrowser"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": ["ms-python.python", "batisteo.vscode-django"]
+    }
+  }
+}
