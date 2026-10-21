@@ -2,7 +2,8 @@
   "name": "Alderwick Family Health",
   "image": "mcr.microsoft.com/devcontainers/python:3.12",
   "containerEnv": {
-    "PYTHONUNBUFFERED": "1"
+    "PYTHONUNBUFFERED": "1",
+    "GOOGLE_GENAI_USE_VERTEXAI": "true"
   },
   "secrets": {
     "GEMINI_API_KEY": {

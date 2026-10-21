@@ -58,7 +58,7 @@ Optional environment variables:
 | Variable | Purpose |
 |---|---|
 | `GEMINI_MODEL` | Model ID to use (default `gemini-3.5-flash-lite`) |
-| `GOOGLE_GENAI_USE_VERTEXAI` | Set to `true` to send requests through Vertex AI on GCP. The key must then be a Vertex AI API key. |
+| `GOOGLE_GENAI_USE_VERTEXAI` | Which endpoint the key is sent to. The Codespace sets it to `true`, which sends requests to Vertex AI (`aiplatform.googleapis.com`), as GCP project keys need. With an AI Studio key, set it to `false`, which sends requests to `generativelanguage.googleapis.com`. Using the wrong endpoint for your key fails with `403 API_KEY_SERVICE_BLOCKED`. |
 
 On your own computer, run `export GEMINI_API_KEY=...` before `runserver`. The `/dev/gemini/` page is not linked from the application and returns 404 when `DJANGO_DEBUG=0`. Send synthetic text only, never real patient information.
 

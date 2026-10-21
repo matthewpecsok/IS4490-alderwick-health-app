@@ -4,10 +4,12 @@ Configuration comes from environment variables. In GitHub Codespaces, add them
 as Codespaces secrets (GitHub > Settings > Codespaces > Secrets) and they are
 set automatically in every Codespace for this repository:
 
-    GEMINI_API_KEY             API key from Google AI Studio or your GCP project (required)
+    GEMINI_API_KEY             API key from your GCP project or Google AI Studio (required)
     GEMINI_MODEL               model ID to use (optional, defaults to DEFAULT_MODEL)
-    GOOGLE_GENAI_USE_VERTEXAI  "true" to send requests through Vertex AI on GCP;
-                               the key must then be a Vertex AI API key (optional)
+    GOOGLE_GENAI_USE_VERTEXAI  "true" sends requests to Vertex AI (aiplatform.googleapis.com),
+                               which is what GCP project keys need; the Codespace sets this.
+                               Unset or "false" sends them to the AI Studio endpoint
+                               (generativelanguage.googleapis.com), for AI Studio keys.
 
 Example, from any view or service:
 
@@ -76,6 +78,12 @@ def generate_text(prompt, *, system_instruction=None, model=None):
             (time.monotonic() - started) * 1000,
             type(exc).__name__,
         )
-        raise GeminiError(f"{type(exc).__name__}: {exc}") from exc
+        message = f"{type(exc).__name__}: {exc}"
+        if "API_KEY_SERVICE_BLOCKED" in message:
+            message = (
+                "This key is not allowed to call the endpoint the request went to. GCP keys need "
+                "GOOGLE_GENAI_USE_VERTEXAI=true; AI Studio keys need it unset.\n\n" + message
+            )
+        raise GeminiError(message) from exc
     logger.info("gemini_call model=%s duration_ms=%.1f", model, (time.monotonic() - started) * 1000)
     return response.text or ""
