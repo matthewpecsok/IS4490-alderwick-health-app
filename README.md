@@ -175,3 +175,4 @@ Logging is configured in `config/settings.py` (`LOGGING`). Set `ALDERWICK_LOG_LE
 - `localhost`, `127.0.0.1`, and Codespaces `*.app.github.dev` addresses are allowed hosts. CSRF is configured for Codespaces port forwarding.
 - Sessions last 8 hours.
 - Alderwick Family Health, its staff, patients, insurance plans, and phone numbers (555-01xx) are fictional.
+- Some change here to the readme.
